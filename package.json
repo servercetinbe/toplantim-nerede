@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "prepare": "husky install"
+    "prepare": "husky"
   },
   "dependencies": {
     "react": "^18",
@@ -23,8 +23,6 @@
     "eslint-config-next": "14.2.13",
     "husky": "^8.0.0"
   },
-  "description": "toplantim-nerede",
-  "main": "index.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/servercetinbe/toplantim-nerede.git"
@@ -33,7 +31,6 @@
     "nextJS"
   ],
   "author": "enginmertcan",
-  "license": "ISC",
   "bugs": {
     "url": "https://github.com/servercetinbe/toplantim-nerede/issues"
   },

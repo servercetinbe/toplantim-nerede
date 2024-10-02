@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "prepare": "husky"
   },
   "dependencies": {
     "react": "^18",
@@ -19,6 +20,19 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "eslint": "^8",
-    "eslint-config-next": "14.2.13"
-  }
+    "eslint-config-next": "14.2.13",
+    "husky": "^8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/servercetinbe/toplantim-nerede.git"
+  },
+  "keywords": [
+    "nextJS"
+  ],
+  "author": "enginmertcan",
+  "bugs": {
+    "url": "https://github.com/servercetinbe/toplantim-nerede/issues"
+  },
+  "homepage": "https://github.com/servercetinbe/toplantim-nerede#readme"
 }

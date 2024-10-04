@@ -1,11 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    experimental: {
-      turbo: true, // Turbopack'i etkinleştir
+  experimental: {
+    turbo: {
+      enabled: true, 
     },
-    reactStrictMode: true,  // (Opsiyonel) React Strict Mode
-    swcMinify: true,        // (Opsiyonel) SWC minify
-  };
-  
-  export default nextConfig;
-  
+  },
+  reactStrictMode: true, 
+  swcMinify: true, 
+};
+
+export default nextConfig;

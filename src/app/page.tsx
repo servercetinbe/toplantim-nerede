@@ -1,82 +1,61 @@
-import Image from "next/image";
+"use client";
 
-import styles from "./page.module.css";
+import React, { useState } from "react";
+import "./globals.css"; 
+const Home = (): React.ReactElement => {
+  const [numbers, setNumbers] = useState("");
+  const [result, setResult] = useState<null | number>(null);
+  const [error, setError] = useState<string | null>(null); 
 
-const Home = (): React.ReactElement => (
-  <div className={styles.page}>
-    <main className={styles.main}>
-      <Image
-        className={styles.logo}
-        src="https://nextjs.org/icons/next.svg"
-        alt="Next.js logo"
-        width={180}
-        height={38}
-        priority
-      />
-      <ol>
-        <li>
-          Get started by editing <code>src/app/page.tsx</code>.
-        </li>
-        <li>Save and see your changes instantly.</li>
-      </ol>
+  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
+    e.preventDefault();
 
-      <div className={styles.ctas}>
-        <a
-          className={styles.primary}
-          href="https://vercel.com/new?utm_source=create-next-app
-            &utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            className={styles.logo}
-            src="https://nextjs.org/icons/vercel.svg"
-            alt="Vercel logomark"
-            width={20}
-            height={20}
+    const num = numbers.split(",").map(Number); 
+    
+    try {
+      const res = await fetch("/api/find-second-large", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ data: num }), 
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setResult(data.data);
+        setError(null); 
+      } else {
+        setError(data.error);
+        setResult(null);
+      }
+    } catch (error) {
+      setError("An error occurred. Please try again later.");
+      setResult(null);
+    }
+  };
+
+  return (
+    <div className="page">
+      <main className="main">
+        <h1 className="title">Find the Second Largest Number</h1>
+        <form className="form" onSubmit={handleSubmit}>
+          <input
+            className="input"
+            type="text"
+            placeholder="Enter numbers separated by commas"
+            value={numbers}
+            onChange={e => setNumbers(e.target.value)}
           />
-          Deploy now
-        </a>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app
-            &utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-          className={styles.secondary}
-        >
-          Read our docs
-        </a>
-      </div>
-    </main>
-    <footer className={styles.footer}>
-      <a
-        href="https://nextjs.org/learn?utm_source=create-next-app
-          &utm_medium=appdir-template&utm_campaign=create-next-app"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <Image aria-hidden src="https://nextjs.org/icons/file.svg" alt="File icon" width={16} height={16} />
-        Learn
-      </a>
-      <a
-        href="https://vercel.com/templates?framework=next.js
-          &utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <Image aria-hidden src="https://nextjs.org/icons/window.svg" alt="Window icon" width={16} height={16} />
-        Examples
-      </a>
-      <a
-        // eslint-disable-next-line max-len
-        href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <Image aria-hidden src="https://nextjs.org/icons/globe.svg" alt="Globe icon" width={16} height={16} />
-        Go to nextjs.org →
-      </a>
-    </footer>
-  </div>
-);
+          <button className="button" type="submit">
+            Submit
+          </button>
+        </form>
+        {result !== null && <p className="result">Second largest number: {result}</p>}
+      </main>
+    </div>
+  );
+};
+
 export default Home;

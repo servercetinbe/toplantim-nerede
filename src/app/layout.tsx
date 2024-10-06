@@ -36,15 +36,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>): React.ReactElement {
   return (
-<<<<<<< Updated upstream
-    <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>{children}</body>
-=======
+
     <html lang="tr">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         {children}
       </body>
->>>>>>> Stashed changes
+
     </html>
   );
 }

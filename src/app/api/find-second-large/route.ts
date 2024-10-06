@@ -2,11 +2,13 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 const result = z.object({
-  data: z.array(
-    z.number({
-      invalid_type_error: "Her eleman bir sayı olmalıdır.",
-    })
-  ).min(2, "Dizi en az iki sayı içermelidir."),
+  data: z
+    .array(
+      z.number({
+        invalid_type_error: "Her eleman bir sayı olmalıdır.",
+      })
+    )
+    .min(2, "Dizi en az iki sayı içermelidir."),
 });
 
 export async function POST(request: Request) {

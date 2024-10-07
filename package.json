@@ -7,8 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "prepare": "husky install",
-    "lintf":"next lint --fix"
+
   },
   "dependencies": {
     "next": "14.2.13",
@@ -33,8 +32,6 @@
     "prettier": "^3.3.3",
     "typescript": "^4.9.5"
   },
-  "description": "toplantim-nerede",
-  "main": "index.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/servercetinbe/toplantim-nerede.git"
@@ -43,7 +40,6 @@
     "nextJS"
   ],
   "author": "enginmertcan",
-  "license": "ISC",
   "bugs": {
     "url": "https://github.com/servercetinbe/toplantim-nerede/issues"
   },

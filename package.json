@@ -7,21 +7,31 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "prepare": "husky"
+    "prepare": "husky install",
+    "lintf":"next lint --fix"
   },
   "dependencies": {
+    "next": "14.2.13",
     "react": "^18",
     "react-dom": "^18",
-    "next": "14.2.13"
+    "zod": "^3.23.8"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@ianvs/prettier-plugin-sort-imports": "^4.3.1",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
-    "eslint": "^8",
+    "@typescript-eslint/eslint-plugin": "^8.8.0",
+    "@typescript-eslint/parser": "^8.8.0",
+    "eslint": "^8.57.1",
     "eslint-config-next": "14.2.13",
-    "husky": "^8.0.0"
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-jest-dom": "^5.4.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "eslint-plugin-testing-library": "^6.3.0",
+    "husky": "^8.0.0",
+    "prettier": "^3.3.3",
+    "typescript": "^4.9.5"
   },
   "repository": {
     "type": "git",

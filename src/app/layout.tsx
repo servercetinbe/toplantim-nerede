@@ -17,17 +17,14 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   title: "Find the Second Largest Number - Global SEO",
   description: "This application finds the second largest number among the entered numbers.",
-  keywords:"SEO, second largest number, algorithm, numbers",
+  keywords: "SEO, second largest number, algorithm, numbers",
   openGraph: {
-    
     title: "Find the Second Largest Number",
     description: "An algorithm that finds the second largest number among the entered numbers.",
     locale: "tr_TR",
     type: "website",
-    siteName :"toplantim-nerede"
+    siteName: "toplantim-nerede",
   },
-
-
 };
 
 export default function RootLayout({
@@ -36,12 +33,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>): React.ReactElement {
   return (
-
     <html lang="tr">
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        {children}
-      </body>
-
+      <body className={`${geistSans.variable} ${geistMono.variable}`}>{children}</body>
     </html>
   );
 }

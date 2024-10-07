@@ -10,8 +10,12 @@ const result = z.object({
     )
     .min(2, "Dizi en az iki sayı içermelidir."),
 });
-
-export async function POST(request: Request) {
+interface PostRes {
+  success: boolean;
+  data: number | null;
+  error: string | null;
+}
+export const POST = async (request: Request): Promise<NextResponse<PostRes>> => {
   try {
     const body = await request.json();
 
@@ -63,10 +67,12 @@ export async function POST(request: Request) {
       {
         success: true,
         data: secondLargest,
+        error: null,
       },
       { status: 200 }
     );
   } catch (error) {
+    console.error(error);
     return NextResponse.json(
       {
         success: false,
@@ -76,4 +82,4 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
-}
+};

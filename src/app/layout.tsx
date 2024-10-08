@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     template: "%s | toplanti-nerede",
   },
   description: "Toplantı odalarınızı yönetin ve toplantı zamanlarını kolayca planlayın.",
-  keywords: ["toplantı yönetimi", "toplantı odası", "takvim", "planlama","buluşma","konuşma"],
+  keywords: ["toplantı yönetimi", "toplantı odası", "takvim", "planlama", "buluşma", "konuşma"],
   openGraph: {
     title: "Toplantım Nerede",
     description: "Toplantı odalarını ve zamanlarını kolayca yönetin.",

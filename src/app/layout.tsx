@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ClerkProvider, SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
+import { AppRouterCacheProvider } from "@mui/material-nextjs/v14-appRouter";
 
 import "./globals.css";
 
@@ -27,15 +28,17 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en">
         <body>
-          <header>
-            <SignedOut>
-              <SignInButton />
-            </SignedOut>
-            <SignedIn>
-              <UserButton />
-            </SignedIn>
-          </header>
-          <main>{children}</main>
+          <AppRouterCacheProvider>
+            <header>
+              <SignedOut>
+                <SignInButton />
+              </SignedOut>
+              <SignedIn>
+                <UserButton />
+              </SignedIn>
+            </header>
+            <main>{children}</main>
+          </AppRouterCacheProvider>
         </body>
       </html>
     </ClerkProvider>

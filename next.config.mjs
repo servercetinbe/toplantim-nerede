@@ -7,6 +7,9 @@ const nextConfig = {
   },
   reactStrictMode: true, 
   swcMinify: true, 
+  compiler : {
+    emotion : true,
+  }
 };
 
 export default nextConfig;

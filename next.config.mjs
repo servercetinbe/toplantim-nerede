@@ -1,15 +1,19 @@
+import createNextIntlPlugin from 'next-intl/plugin';
+
+const withNextIntl = createNextIntlPlugin();
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
     turbo: {
-      enabled: true, 
+      enabled: true,
     },
   },
-  reactStrictMode: true, 
-  swcMinify: true, 
-  compiler : {
-    emotion : true,
-  }
+  reactStrictMode: true,
+  swcMinify: true,
+  compiler: {
+    emotion: true,
+  },
 };
 
-export default nextConfig;
+export default withNextIntl(nextConfig);

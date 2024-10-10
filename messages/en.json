@@ -1,0 +1,14 @@
+{
+  "title": "Where is My Meeting?",
+  "meetingRoom": {
+    "title": "Meeting Room 1",
+    "capacity": "Capacity: {count} People",
+    "reserve": "Reserve"
+  },
+  "scheduler": {
+    "title": "Time Scheduler",
+    "startTime": "Start Time",
+    "endTime": "End Time",
+    "scheduleTime": "Schedule Time"
+  }
+}

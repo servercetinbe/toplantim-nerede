@@ -1,18 +1,9 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
+import { ClerkProvider } from "@clerk/nextjs";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getMessages } from "next-intl/server";
 
 import "./globals.css";
-
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
 
 export const metadata: Metadata = {
   title: {
@@ -20,7 +11,7 @@ export const metadata: Metadata = {
     template: "%s | toplanti-nerede",
   },
   description: "Toplantı odalarınızı yönetin ve toplantı zamanlarını kolayca planlayın.",
-  keywords: ["toplantı yönetimi", "toplantı odası", "takvim", "planlama","buluşma","konuşma"],
+  keywords: ["toplantı yönetimi", "toplantı odası", "takvim", "planlama", "buluşma", "konuşma"],
   openGraph: {
     title: "Toplantım Nerede",
     description: "Toplantı odalarını ve zamanlarını kolayca yönetin.",
@@ -29,14 +20,20 @@ export const metadata: Metadata = {
     siteName: "toplantim-nerede",
   },
 };
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>): React.ReactElement {
+
+export default async function RootLayout({ children }: { children: React.ReactNode }): Promise<React.ReactElement> {
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
-    <html lang="tr">
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>{children}</body>
-    </html>
+    <ClerkProvider>
+      <html lang={locale}>
+        <body>
+          <NextIntlClientProvider locale={locale} messages={messages}>
+            {children}
+          </NextIntlClientProvider>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

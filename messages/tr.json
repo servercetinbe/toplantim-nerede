@@ -1,0 +1,14 @@
+{
+  "title": "Toplantım Nerede?",
+  "meetingRoom": {
+    "title": "Toplantı Odası 1",
+    "capacity": "Kapasite: {count} Kişi",
+    "reserve": "Rezerve"
+  },
+  "scheduler": {
+    "title": "Zaman Planlayıcı",
+    "startTime": "Başlangıç Zamanı",
+    "endTime": "Bitiş Zamanı",
+    "scheduleTime": "Zamanı Planla"
+  }
+}

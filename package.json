@@ -11,13 +11,14 @@
     "lintf": "next lint --fix"
   },
   "dependencies": {
+    "@clerk/clerk-sdk-node": "^5.0.49",
     "@clerk/nextjs": "^5.7.1",
     "@emotion/cache": "^11.13.1",
     "@emotion/react": "^11.13.3",
     "@emotion/server": "^11.11.0",
     "@emotion/styled": "^11.13.0",
     "@mui/icons-material": "^6.1.3",
-    "@mui/material": "^6.1.2",
+    "@mui/material": "^6.1.3",
     "@mui/material-nextjs": "^6.1.2",
     "next": "14.2.13",
     "next-intl": "^3.20.0",
@@ -28,7 +29,7 @@
   "devDependencies": {
     "@ianvs/prettier-plugin-sort-imports": "^4.3.1",
     "@types/node": "^20",
-    "@types/react": "^18",
+    "@types/react": "^18.3.11",
     "@types/react-dom": "^18",
     "@typescript-eslint/eslint-plugin": "^8.8.0",
     "@typescript-eslint/parser": "^8.8.0",

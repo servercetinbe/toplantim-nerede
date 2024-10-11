@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { ClerkProvider } from "@clerk/nextjs";
+import { ClerkProvider, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 
@@ -30,6 +30,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <html lang={locale}>
         <body>
           <NextIntlClientProvider locale={locale} messages={messages}>
+            <header style={{ display: "flex", justifyContent: "space-between", padding: "10px 20px" }}>
+              <div>
+                <SignedOut />
+                <SignedIn>
+                  <UserButton afterSignOutUrl="/" />
+                </SignedIn>
+              </div>
+            </header>
             {children}
           </NextIntlClientProvider>
         </body>

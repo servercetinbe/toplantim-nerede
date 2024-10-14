@@ -1,7 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Box, CircularProgress, Container, List, ListItem, ListItemText, Typography } from "@mui/material";
+import {
+  Box,
+  CircularProgress,
+  Container,
+  List,
+  ListItem,
+  ListItemText,
+  Typography,
+  Card,
+  CardContent,
+  Paper,
+  Grid,
+} from "@mui/material";
 
 interface AdminData {
   userCount: number;
@@ -31,31 +43,88 @@ export default function AdminDashboard(): JSX.Element {
 
   if (loading) {
     return (
-      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
-        <CircularProgress />
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
+        <CircularProgress size={60} thickness={5} />
       </Box>
     );
   }
 
   return (
     <Container maxWidth="md">
-      <Typography variant="h4" gutterBottom align="center">
+      <Typography
+        variant="h4"
+        align="center"
+        gutterBottom
+        sx={{ fontWeight: "bold", mt: 4 }}
+      >
         Admin Dashboard
       </Typography>
-      <Box sx={{ mt: 4 }}>
-        <Typography variant="h6">Total Users: {data?.userCount ?? "Loading..."}</Typography>
-        <Typography variant="h6">Total Admins: {data?.adminCount ?? "Loading..."}</Typography>
-      </Box>
-      <Box sx={{ mt: 4 }}>
-        <Typography variant="h6">Admin List:</Typography>
+
+      <Grid container spacing={4} sx={{ mt: 4 }}>
+        <Grid item xs={12} sm={6}>
+          <Card
+            elevation={3}
+            sx={{
+              backgroundColor: "#f5f5f5",
+              borderRadius: 2,
+              p: 3,
+              textAlign: "center",
+            }}
+          >
+            <Typography variant="h6" color="text.secondary">
+              Total Users
+            </Typography>
+            <Typography variant="h3" sx={{ fontWeight: "bold" }}>
+              {data?.userCount ?? "Loading..."}
+            </Typography>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12} sm={6}>
+          <Card
+            elevation={3}
+            sx={{
+              backgroundColor: "#f5f5f5",
+              borderRadius: 2,
+              p: 3,
+              textAlign: "center",
+            }}
+          >
+            <Typography variant="h6" color="text.secondary">
+              Total Admins
+            </Typography>
+            <Typography variant="h3" sx={{ fontWeight: "bold" }}>
+              {data?.adminCount ?? "Loading..."}
+            </Typography>
+          </Card>
+        </Grid>
+      </Grid>
+
+      <Paper elevation={3} sx={{ mt: 6, p: 3, borderRadius: 2 }}>
+        <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
+          Admin List:
+        </Typography>
         <List>
-          {data?.adminList.map(admin => (
-            <ListItem key={admin.id}>
+          {data?.adminList.map((admin) => (
+            <ListItem
+              key={admin.id}
+              sx={{
+                borderBottom: "1px solid #e0e0e0",
+                "&:last-child": { borderBottom: "none" },
+              }}
+            >
               <ListItemText primary={admin.username} />
             </ListItem>
           ))}
         </List>
-      </Box>
+      </Paper>
     </Container>
   );
 }

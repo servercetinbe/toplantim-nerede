@@ -1,18 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
+  Card,
   CircularProgress,
   Container,
+  Grid,
   List,
   ListItem,
   ListItemText,
-  Typography,
-  Card,
-  CardContent,
   Paper,
-  Grid,
+  Typography,
 } from "@mui/material";
 
 interface AdminData {
@@ -58,12 +57,7 @@ export default function AdminDashboard(): JSX.Element {
 
   return (
     <Container maxWidth="md">
-      <Typography
-        variant="h4"
-        align="center"
-        gutterBottom
-        sx={{ fontWeight: "bold", mt: 4 }}
-      >
+      <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: "bold", mt: 4 }}>
         Admin Dashboard
       </Typography>
 
@@ -79,7 +73,7 @@ export default function AdminDashboard(): JSX.Element {
             }}
           >
             <Typography variant="h6" color="text.secondary">
-              Total Users
+              Total User
             </Typography>
             <Typography variant="h3" sx={{ fontWeight: "bold" }}>
               {data?.userCount ?? "Loading..."}
@@ -98,7 +92,7 @@ export default function AdminDashboard(): JSX.Element {
             }}
           >
             <Typography variant="h6" color="text.secondary">
-              Total Admins
+              Total Admin
             </Typography>
             <Typography variant="h3" sx={{ fontWeight: "bold" }}>
               {data?.adminCount ?? "Loading..."}
@@ -112,7 +106,7 @@ export default function AdminDashboard(): JSX.Element {
           Admin List:
         </Typography>
         <List>
-          {data?.adminList.map((admin) => (
+          {data?.adminList.map(admin => (
             <ListItem
               key={admin.id}
               sx={{

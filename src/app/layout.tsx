@@ -1,3 +1,4 @@
+import React from "react";
 import type { Metadata } from "next";
 import { ClerkProvider, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import { NextIntlClientProvider } from "next-intl";

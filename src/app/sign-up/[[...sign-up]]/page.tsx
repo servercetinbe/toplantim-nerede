@@ -1,3 +1,4 @@
+import React from "react";
 import { SignUp } from "@clerk/nextjs";
 import { Box, Container, Paper, Typography } from "@mui/material";
 

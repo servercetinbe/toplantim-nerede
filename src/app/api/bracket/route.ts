@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 export const GET = async (request: Request): Promise<Response> => {
   const { searchParams } = new URL(request.url);
   const str = searchParams.get("str");
-  
+
   if (!str) {
     return NextResponse.json(
       {
@@ -17,8 +17,8 @@ export const GET = async (request: Request): Promise<Response> => {
 
   let count = 0;
   for (const char of str) {
-    if (char === "(") count++;
-    if (char === ")") count--;
+    if (char === "(") count += 1;
+    if (char === ")") count -= 1;
     if (count < 0) break;
   }
 

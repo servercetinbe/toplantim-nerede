@@ -1,4 +1,3 @@
-// /app/api/admin/route.ts
 import { NextResponse } from "next/server";
 import { clerkClient } from "@clerk/clerk-sdk-node";
 

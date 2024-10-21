@@ -1,12 +1,24 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { Box, Button, Container, Grid, Paper, TextField, Typography, MenuItem, Select, SelectChangeEvent } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import {
+  Box,
+  Button,
+  Container,
+  Grid,
+  MenuItem,
+  Paper,
+  Select,
+  SelectChangeEvent,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { MeetingRoom } from "@prisma/client";
 import { useTranslations } from "next-intl";
 
 // Mock API to get available rooms - you will replace it with a real API call.
 const fetchMeetingRooms = async () => {
-  const response = await fetch('/api/meetingRooms'); // Gerçek endpoint'i buraya yazın
+  const response = await fetch("/api/meetingRooms");
   return response.json();
 };
 const companies = [
@@ -14,23 +26,21 @@ const companies = [
     name: "Puzzle",
     rooms: [
       { id: "puzzleA", name: "Puzzle A", capacity: 10 },
-      { id: "passengerA", name: "Passenger A", capacity: 15 },
+      { id: "passengerA", name: "Passenger A", capacity: 10 },
     ],
   },
   {
     name: "Passenger",
-    rooms: [
-      { id: "passengerB", name: "Passenger B", capacity: 12 },
-    ],
+    rooms: [{ id: "passengerB", name: "Passenger B", capacity: 10 }],
   },
 ];
 
 const Home = (): React.ReactElement => {
-  const t = useTranslations(); // Çevirileri dinamik olarak yöneten hook
-  const [meetingRooms, setMeetingRooms] = useState<any[]>([]);
-  const [selectedRoom, setSelectedRoom] = useState<string>('');
-  const [startTime, setStartTime] = useState<string>('');
-  const [endTime, setEndTime] = useState<string>('');
+  const t = useTranslations();
+  const [meetingRooms, setMeetingRooms] = useState<MeetingRoom[]>([]);
+  const [selectedRoom, setSelectedRoom] = useState<string>("");
+  const [startTime, setStartTime] = useState<string>("");
+  const [endTime, setEndTime] = useState<string>("");
   const [selectedCompany, setSelectedCompany] = useState<string>("");
 
   const handleCompanyChange = (event: SelectChangeEvent<string>) => {
@@ -39,12 +49,9 @@ const Home = (): React.ReactElement => {
     setMeetingRooms(selectedCompany?.rooms || []);
   };
 
-  // Fetch available meeting rooms on mount
   useEffect(() => {
     fetchMeetingRooms().then(setMeetingRooms).catch(console.error);
   }, []);
-
-  // Handle reservation submission
 
   const handleReservation = async () => {
     if (!selectedRoom || !startTime || !endTime) {
@@ -59,10 +66,10 @@ const Home = (): React.ReactElement => {
     };
 
     try {
-      const response = await fetch('/api/reservation', {
-        method: 'POST',
+      const response = await fetch("/api/reservation", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(reservationData),
       });
@@ -74,7 +81,7 @@ const Home = (): React.ReactElement => {
         alert(`Failed to make reservation: ${errorData.error}`);
       }
     } catch (error) {
-      console.error('Reservation error:', error);
+      console.error("Reservation error:", error);
       alert("Failed to make reservation");
     }
   };
@@ -82,20 +89,19 @@ const Home = (): React.ReactElement => {
   return (
     <Container maxWidth="md" style={{ padding: "30px", backgroundColor: "#f9f9f9" }}>
       <Box textAlign="center" mb={4}>
-        <Typography variant="h3" gutterBottom>{t("title")}</Typography>
+        <Typography variant="h3" gutterBottom>
+          {t("title")}
+        </Typography>
       </Box>
 
       {/* Firma Seçimi */}
       <Paper elevation={3} style={{ padding: "30px", marginBottom: "40px" }}>
         <Typography variant="h5">Firma Seçin</Typography>
-        <Select
-          fullWidth
-          value={selectedCompany}
-          onChange={handleCompanyChange}
-          displayEmpty
-        >
-          <MenuItem value="" disabled>Firma Seçin</MenuItem>
-          {companies.map((company) => (
+        <Select fullWidth value={selectedCompany} onChange={handleCompanyChange} displayEmpty>
+          <MenuItem value="" disabled>
+            Firma Seçin
+          </MenuItem>
+          {companies.map(company => (
             <MenuItem key={company.name} value={company.name}>
               {company.name}
             </MenuItem>
@@ -106,14 +112,11 @@ const Home = (): React.ReactElement => {
       {/* Toplantı Odası Seçimi */}
       <Paper elevation={3} style={{ padding: "30px", marginBottom: "40px" }}>
         <Typography variant="h5">Toplantı Odası Seçin</Typography>
-        <Select
-          fullWidth
-          value={selectedRoom}
-          onChange={(e) => setSelectedRoom(e.target.value)}
-          displayEmpty
-        >
-          <MenuItem value="" disabled>Oda Seçin</MenuItem>
-          {meetingRooms.map((room) => (
+        <Select fullWidth value={selectedRoom} onChange={e => setSelectedRoom(e.target.value)} displayEmpty>
+          <MenuItem value="" disabled>
+            Oda Seçin
+          </MenuItem>
+          {meetingRooms.map(room => (
             <MenuItem key={room.id} value={room.id}>
               {room.name} - Capacity: {room.capacity}
             </MenuItem>
@@ -131,7 +134,7 @@ const Home = (): React.ReactElement => {
               type="datetime-local"
               fullWidth
               value={startTime}
-              onChange={(e) => setStartTime(e.target.value)}
+              onChange={e => setStartTime(e.target.value)}
               InputLabelProps={{ shrink: true }}
               variant="outlined"
             />
@@ -142,7 +145,7 @@ const Home = (): React.ReactElement => {
               type="datetime-local"
               fullWidth
               value={endTime}
-              onChange={(e) => setEndTime(e.target.value)}
+              onChange={e => setEndTime(e.target.value)}
               InputLabelProps={{ shrink: true }}
               variant="outlined"
             />

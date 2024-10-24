@@ -1,11 +1,15 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useUser } from "@clerk/nextjs"; // Clerk'ten oturum açmış kullanıcıyı almak için kullanıyoruz
 import {
   Box,
   Button,
   Container,
   Grid,
+  List,
+  ListItem,
+  ListItemText,
   MenuItem,
   Paper,
   Select,
@@ -13,15 +17,34 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { MeetingRoom } from "@prisma/client";
-import { useTranslations } from "next-intl";
 
-// Mock API to get available rooms - you will replace it with a real API call.
-const fetchMeetingRooms = async () => {
-  const response = await fetch("/api/meetingRooms");
-  return response.json();
-};
-const companies = [
+interface Room {
+  id: string;
+  name: string;
+  capacity: number;
+}
+
+interface Company {
+  name: string;
+  rooms: Room[];
+}
+
+interface User {
+  id: string;
+  email: string;
+}
+
+interface Reservation {
+  id: string;
+  date: string;
+  time: string;
+  roomId: string;
+  userId: string;
+  room: Room;
+  user: User | null;
+}
+
+const companies: Company[] = [
   {
     name: "Puzzle",
     rooms: [
@@ -36,26 +59,46 @@ const companies = [
 ];
 
 const Home = (): React.ReactElement => {
-  const t = useTranslations();
-  const [meetingRooms, setMeetingRooms] = useState<MeetingRoom[]>([]);
+  const { user } = useUser(); // Oturum açmış kullanıcıyı almak için Clerk'ten hook kullanıyoruz
+  const [meetingRooms, setMeetingRooms] = useState<Room[]>([]);
   const [selectedRoom, setSelectedRoom] = useState<string>("");
   const [startTime, setStartTime] = useState<string>("");
   const [endTime, setEndTime] = useState<string>("");
   const [selectedCompany, setSelectedCompany] = useState<string>("");
+  const [reservations, setReservations] = useState<Reservation[]>([]);
+
+  // Fetch meeting rooms and reservations on component mount
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [roomsResponse, reservationsResponse] = await Promise.all([
+          fetch("/api/meetingRooms"),
+          fetch("/api/reservationList"),
+        ]);
+
+        const rooms = await roomsResponse.json();
+        const reservationsData = await reservationsResponse.json();
+
+        setMeetingRooms(rooms);
+        setReservations(reservationsData);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const handleCompanyChange = (event: SelectChangeEvent<string>) => {
-    const selectedCompany = companies.find(c => c.name === event.target.value);
-    setSelectedCompany(selectedCompany?.name || "");
-    setMeetingRooms(selectedCompany?.rooms || []);
+    const company = companies.find(c => c.name === event.target.value);
+    setSelectedCompany(company?.name || "");
+    setMeetingRooms(company?.rooms || []);
+    setSelectedRoom(""); // Reset room selection when company changes
   };
-
-  useEffect(() => {
-    fetchMeetingRooms().then(setMeetingRooms).catch(console.error);
-  }, []);
 
   const handleReservation = async () => {
     if (!selectedRoom || !startTime || !endTime) {
-      alert("Please select room and time.");
+      alert("Please fill in all required fields");
       return;
     }
 
@@ -63,6 +106,7 @@ const Home = (): React.ReactElement => {
       roomId: selectedRoom,
       startTime,
       endTime,
+      userId: user?.id, // Oturum açmış kullanıcının ID'sini gönderiyoruz
     };
 
     try {
@@ -76,9 +120,16 @@ const Home = (): React.ReactElement => {
 
       if (response.ok) {
         alert("Reservation successful");
+        // Refresh reservations list
+        const updatedReservations = await fetch("/api/reservationList").then(res => res.json());
+        setReservations(updatedReservations);
+
+        // Reset form
+        setStartTime("");
+        setEndTime("");
       } else {
         const errorData = await response.json();
-        alert(`Failed to make reservation: ${errorData.error}`);
+        alert(`Reservation failed: ${errorData.error}`);
       }
     } catch (error) {
       console.error("Reservation error:", error);
@@ -86,20 +137,26 @@ const Home = (): React.ReactElement => {
     }
   };
 
+  const formatReservationTime = (reservation: Reservation) => {
+    const date = new Date(reservation.date).toLocaleDateString();
+    return `${date} ${reservation.time}`;
+  };
+
   return (
     <Container maxWidth="md" style={{ padding: "30px", backgroundColor: "#f9f9f9" }}>
       <Box textAlign="center" mb={4}>
         <Typography variant="h3" gutterBottom>
-          {t("title")}
+          Meeting Room Booking
         </Typography>
       </Box>
 
-      {/* Firma Seçimi */}
       <Paper elevation={3} style={{ padding: "30px", marginBottom: "40px" }}>
-        <Typography variant="h5">Firma Seçin</Typography>
+        <Typography variant="h5" gutterBottom>
+          Select Company
+        </Typography>
         <Select fullWidth value={selectedCompany} onChange={handleCompanyChange} displayEmpty>
           <MenuItem value="" disabled>
-            Firma Seçin
+            Select Company
           </MenuItem>
           {companies.map(company => (
             <MenuItem key={company.name} value={company.name}>
@@ -109,12 +166,19 @@ const Home = (): React.ReactElement => {
         </Select>
       </Paper>
 
-      {/* Toplantı Odası Seçimi */}
       <Paper elevation={3} style={{ padding: "30px", marginBottom: "40px" }}>
-        <Typography variant="h5">Toplantı Odası Seçin</Typography>
-        <Select fullWidth value={selectedRoom} onChange={e => setSelectedRoom(e.target.value)} displayEmpty>
+        <Typography variant="h5" gutterBottom>
+          Select Meeting Room
+        </Typography>
+        <Select
+          fullWidth
+          value={selectedRoom}
+          onChange={e => setSelectedRoom(e.target.value)}
+          displayEmpty
+          disabled={!selectedCompany}
+        >
           <MenuItem value="" disabled>
-            Oda Seçin
+            Select Room
           </MenuItem>
           {meetingRooms.map(room => (
             <MenuItem key={room.id} value={room.id}>
@@ -124,13 +188,14 @@ const Home = (): React.ReactElement => {
         </Select>
       </Paper>
 
-      {/* Tarih ve Saat Seçimi */}
       <Paper elevation={3} style={{ padding: "30px" }}>
-        <Typography variant="h5">{t("scheduler.title")}</Typography>
+        <Typography variant="h5" gutterBottom>
+          Schedule Time
+        </Typography>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6}>
             <TextField
-              label={t("scheduler.startTime")}
+              label="Start Time"
               type="datetime-local"
               fullWidth
               value={startTime}
@@ -141,7 +206,7 @@ const Home = (): React.ReactElement => {
           </Grid>
           <Grid item xs={12} sm={6}>
             <TextField
-              label={t("scheduler.endTime")}
+              label="End Time"
               type="datetime-local"
               fullWidth
               value={endTime}
@@ -150,13 +215,45 @@ const Home = (): React.ReactElement => {
               variant="outlined"
             />
           </Grid>
-
           <Grid item xs={12}>
-            <Button variant="contained" color="secondary" size="large" fullWidth onClick={handleReservation}>
-              {t("scheduler.scheduleTime")}
+            <Button
+              variant="contained"
+              color="primary"
+              size="large"
+              fullWidth
+              onClick={handleReservation}
+              disabled={!selectedRoom || !startTime || !endTime}
+            >
+              Schedule Meeting
             </Button>
           </Grid>
         </Grid>
+      </Paper>
+
+      <Paper elevation={3} style={{ padding: "30px", marginTop: "40px" }}>
+        <Typography variant="h5" gutterBottom>
+          Current Reservations
+        </Typography>
+        <List>
+          {reservations.map(reservation => (
+            <ListItem key={reservation.id}>
+              <ListItemText
+                primary={`Room: ${reservation.room?.name || "Unknown Room"}`}
+                secondary={
+                  <>
+                    <Typography component="span" variant="body2" color="textPrimary">
+                      Time: {formatReservationTime(reservation)}
+                    </Typography>
+                    <br />
+                    <Typography component="span" variant="body2" color="textSecondary">
+                      {reservation.user ? `Reserved by: ${reservation.user.email}` : "User information not available"}
+                    </Typography>
+                  </>
+                }
+              />
+            </ListItem>
+          ))}
+        </List>
       </Paper>
     </Container>
   );

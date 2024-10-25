@@ -1,3 +1,6 @@
+import React from "react";
+
+import Home from "./Home";
 
 export const metadata = {
   title: "Find the Second Largest Number - Specific Page",
@@ -12,8 +15,6 @@ export const metadata = {
   },
 };
 
-import Home from './Home';
-
-export default function Page() {
+export default function Page(): React.ReactElement {
   return <Home />;
 }

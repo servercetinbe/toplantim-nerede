@@ -1,8 +1,12 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useUser } from "@clerk/nextjs"; // Clerk'ten oturum açmış kullanıcıyı almak için kullanıyoruz
+import { useUser } from "@clerk/nextjs";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import PeopleIcon from "@mui/icons-material/People";
+import PersonIcon from "@mui/icons-material/Person";
 import {
+  Alert,
   Box,
   Button,
   Container,
@@ -14,6 +18,7 @@ import {
   Paper,
   Select,
   SelectChangeEvent,
+  Snackbar,
   TextField,
   Typography,
 } from "@mui/material";
@@ -29,43 +34,81 @@ interface Company {
   rooms: Room[];
 }
 
-interface User {
-  id: string;
-  email: string;
-}
-
 interface Reservation {
   id: string;
-  date: string;
-  time: string;
+  startTime: string | Date;
+  endTime: string | Date;
   roomId: string;
-  userId: string;
-  room: Room;
-  user: User | null;
+  room?: {
+    id: string;
+    name: string;
+    capacity: number;
+  };
+  user?: {
+    id: string;
+    name?: string;
+    email: string;
+  } | null;
 }
+
+// Helper function to format the reservation time
+const formatReservationTime = (reservation: Reservation) => {
+  const startTime = new Date(reservation.startTime);
+  const endTime = new Date(reservation.endTime);
+
+  const dateStr = startTime.toLocaleDateString("tr-TR", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
+  const timeStr = `${startTime.toLocaleTimeString("tr-TR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  })} - ${endTime.toLocaleTimeString("tr-TR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  })}`;
+
+  return `${dateStr} ${timeStr}`;
+};
 
 const companies: Company[] = [
   {
     name: "Puzzle",
     rooms: [
       { id: "puzzleA", name: "Puzzle A", capacity: 10 },
-      { id: "passengerA", name: "Passenger A", capacity: 10 },
+      { id: "passengerA", name: "Passenger A", capacity: 15 },
     ],
   },
   {
     name: "Passenger",
-    rooms: [{ id: "passengerB", name: "Passenger B", capacity: 10 }],
+    rooms: [{ id: "passengerB", name: "Passenger B", capacity: 12 }],
   },
 ];
 
 const Home = (): React.ReactElement => {
-  const { user } = useUser(); // Oturum açmış kullanıcıyı almak için Clerk'ten hook kullanıyoruz
+  const { user } = useUser();
   const [meetingRooms, setMeetingRooms] = useState<Room[]>([]);
   const [selectedRoom, setSelectedRoom] = useState<string>("");
   const [startTime, setStartTime] = useState<string>("");
   const [endTime, setEndTime] = useState<string>("");
   const [selectedCompany, setSelectedCompany] = useState<string>("");
   const [reservations, setReservations] = useState<Reservation[]>([]);
+
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">("success");
+
+  // Helper function to show messages via Snackbar
+  const showSnackbar = (message: string, severity: "success" | "error") => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setOpenSnackbar(true);
+  };
+
+  // Close Snackbar
+  const handleCloseSnackbar = () => setOpenSnackbar(false);
 
   // Fetch meeting rooms and reservations on component mount
   useEffect(() => {
@@ -83,22 +126,25 @@ const Home = (): React.ReactElement => {
         setReservations(reservationsData);
       } catch (error) {
         console.error("Error fetching data:", error);
+        showSnackbar("Error fetching data", "error");
       }
     };
 
     fetchData();
   }, []);
 
+  // Handle company selection
   const handleCompanyChange = (event: SelectChangeEvent<string>) => {
     const company = companies.find(c => c.name === event.target.value);
     setSelectedCompany(company?.name || "");
     setMeetingRooms(company?.rooms || []);
-    setSelectedRoom(""); // Reset room selection when company changes
+    setSelectedRoom("");
   };
 
+  // Handle reservation
   const handleReservation = async () => {
     if (!selectedRoom || !startTime || !endTime) {
-      alert("Please fill in all required fields");
+      showSnackbar("Please fill in all required fields", "error");
       return;
     }
 
@@ -106,7 +152,7 @@ const Home = (): React.ReactElement => {
       roomId: selectedRoom,
       startTime,
       endTime,
-      userId: user?.id, // Oturum açmış kullanıcının ID'sini gönderiyoruz
+      userId: user?.id,
     };
 
     try {
@@ -119,27 +165,25 @@ const Home = (): React.ReactElement => {
       });
 
       if (response.ok) {
-        alert("Reservation successful");
-        // Refresh reservations list
+        showSnackbar("Reservation successful", "success");
+
+        // Refresh reservations
         const updatedReservations = await fetch("/api/reservationList").then(res => res.json());
         setReservations(updatedReservations);
 
-        // Reset form
         setStartTime("");
         setEndTime("");
       } else {
         const errorData = await response.json();
-        alert(`Reservation failed: ${errorData.error}`);
+        const errorMsg = errorData.error.includes("Room already booked")
+          ? "This room is already booked for the selected time. Please choose another time."
+          : `Reservation failed: ${errorData.error}`;
+        showSnackbar(errorMsg, "error");
       }
     } catch (error) {
       console.error("Reservation error:", error);
-      alert("Failed to make reservation");
+      showSnackbar("Failed to make reservation", "error");
     }
-  };
-
-  const formatReservationTime = (reservation: Reservation) => {
-    const date = new Date(reservation.date).toLocaleDateString();
-    return `${date} ${reservation.time}`;
   };
 
   return (
@@ -236,17 +280,57 @@ const Home = (): React.ReactElement => {
         </Typography>
         <List>
           {reservations.map(reservation => (
-            <ListItem key={reservation.id}>
+            <ListItem
+              key={reservation.id}
+              alignItems="flex-start"
+              sx={{
+                mb: 2,
+                border: "1px solid",
+                borderColor: "divider",
+                borderRadius: 1,
+                "&:hover": {
+                  bgcolor: "action.hover",
+                },
+              }}
+            >
               <ListItemText
-                primary={`Room: ${reservation.room?.name || "Unknown Room"}`}
+                primary={
+                  <Typography component="div" variant="h6" color="primary" sx={{ mb: 1 }}>
+                    {reservation.room?.name || "Unknown Room"}
+                  </Typography>
+                }
                 secondary={
                   <>
-                    <Typography component="span" variant="body2" color="textPrimary">
-                      Time: {formatReservationTime(reservation)}
+                    <Typography
+                      component="div"
+                      variant="body1"
+                      color="text.primary"
+                      sx={{ display: "flex", alignItems: "center", mb: 0.5 }}
+                    >
+                      <AccessTimeIcon sx={{ mr: 1, fontSize: 20 }} />
+                      {formatReservationTime(reservation)}
                     </Typography>
-                    <br />
-                    <Typography component="span" variant="body2" color="textSecondary">
-                      {reservation.user ? `Reserved by: ${reservation.user.email}` : "User information not available"}
+
+                    <Typography
+                      component="div"
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ display: "flex", alignItems: "center" }}
+                    >
+                      <PersonIcon sx={{ mr: 1, fontSize: 20 }} />
+                      {reservation.user
+                        ? `${reservation.user.name || reservation.user.email}`
+                        : "User information not available"}
+                    </Typography>
+
+                    <Typography
+                      component="div"
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ display: "flex", alignItems: "center", mt: 0.5 }}
+                    >
+                      <PeopleIcon sx={{ mr: 1, fontSize: 20 }} />
+                      Capacity: {reservation.room?.capacity || "N/A"}
                     </Typography>
                   </>
                 }
@@ -255,6 +339,17 @@ const Home = (): React.ReactElement => {
           ))}
         </List>
       </Paper>
+
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: "100%" }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };

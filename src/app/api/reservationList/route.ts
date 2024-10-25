@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAuth } from "@clerk/nextjs/server";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 export const GET = async (_request: NextRequest): Promise<Response> => {
   try {
-    const { userId } = getAuth(_request);
-
-    const reservations = await prisma.reservation.findMany();
+    const reservations = await prisma.reservation.findMany({
+      orderBy: {
+        startTime: "asc",
+      },
+    });
 
     const populatedReservations = await Promise.all(
       reservations.map(async reservation => {
@@ -21,16 +22,12 @@ export const GET = async (_request: NextRequest): Promise<Response> => {
           user = await prisma.user.findUnique({
             where: { id: reservation.userId },
           });
-        } else if (userId) {
-          user = await prisma.user.findUnique({
-            where: { clerkId: userId },
-          });
         }
 
         return {
           ...reservation,
           room,
-          user: user ? user : null,
+          user: user ? { id: user.id, email: user.email, name: user.name } : null,
         };
       })
     );

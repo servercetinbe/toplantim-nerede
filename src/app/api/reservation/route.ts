@@ -14,8 +14,8 @@ export const POST = async (request: NextRequest): Promise<Response> => {
 
     const reservation = {
       userId,
-      date: new Date(reservationData.startTime),
-      time: `${reservationData.startTime.split("T")[1]}-${reservationData.endTime.split("T")[1]}`,
+      startTime: new Date(reservationData.startTime),
+      endTime: new Date(reservationData.endTime),
       roomId: reservationData.roomId,
     };
 

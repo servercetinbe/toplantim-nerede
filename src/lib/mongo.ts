@@ -1,11 +1,11 @@
-import { PrismaClient, Reservation } from "@prisma/client"; // Prisma'nın Reservation modelini import ediyoruz.
+import { PrismaClient, Reservation } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 type ReservationInput = {
   userId: string;
-  date: Date;
-  time: string;
+  startTime: Date;
+  endTime: Date;
   roomId: string;
 };
 
@@ -14,17 +14,28 @@ const saveReservationToDB = async (reservation: ReservationInput): Promise<Reser
     const existingReservation = await prisma.reservation.findFirst({
       where: {
         roomId: reservation.roomId,
-        date: reservation.date,
-        time: reservation.time,
+        OR: [
+          {
+            AND: [{ startTime: { lte: reservation.startTime } }, { endTime: { gt: reservation.startTime } }],
+          },
+          {
+            AND: [{ startTime: { lt: reservation.endTime } }, { endTime: { gte: reservation.endTime } }],
+          },
+        ],
       },
     });
 
     if (existingReservation) {
-      throw new Error("Room already booked for this time.");
+      throw new Error("Room already booked for this time slot.");
     }
 
     const newReservation = await prisma.reservation.create({
-      data: reservation,
+      data: {
+        userId: reservation.userId,
+        startTime: reservation.startTime,
+        endTime: reservation.endTime,
+        roomId: reservation.roomId,
+      },
     });
 
     return newReservation;

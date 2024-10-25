@@ -15,18 +15,20 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Find the Second Largest Number - Global SEO",
-  description: "This application finds the second largest number among the entered numbers.",
-  keywords: "SEO, second largest number, algorithm, numbers",
+  title: {
+    default: "Toplantım Nerede - Global SEO",
+    template: "%s | toplanti-nerede",
+  },
+  description: "Toplantı odalarınızı yönetin ve toplantı zamanlarını kolayca planlayın.",
+  keywords: ["toplantı yönetimi", "toplantı odası", "takvim", "planlama","buluşma","konuşma"],
   openGraph: {
-    title: "Find the Second Largest Number",
-    description: "An algorithm that finds the second largest number among the entered numbers.",
+    title: "Toplantım Nerede",
+    description: "Toplantı odalarını ve zamanlarını kolayca yönetin.",
     locale: "tr_TR",
     type: "website",
     siteName: "toplantim-nerede",
   },
 };
-
 export default function RootLayout({
   children,
 }: Readonly<{

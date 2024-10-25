@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { ClerkProvider, SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
-import { AppRouterCacheProvider } from "@mui/material-nextjs/v14-appRouter";
+import { ClerkProvider } from "@clerk/nextjs";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getMessages } from "next-intl/server";
 
 import "./globals.css";
 
@@ -19,26 +20,18 @@ export const metadata: Metadata = {
     siteName: "toplantim-nerede",
   },
 };
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>): React.ReactElement {
+
+export default async function RootLayout({ children }: { children: React.ReactNode }): Promise<React.ReactElement> {
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
     <ClerkProvider>
-      <html lang="en">
+      <html lang={locale}>
         <body>
-          <AppRouterCacheProvider>
-            <header>
-              <SignedOut>
-                <SignInButton />
-              </SignedOut>
-              <SignedIn>
-                <UserButton />
-              </SignedIn>
-            </header>
-            <main>{children}</main>
-          </AppRouterCacheProvider>
+          <NextIntlClientProvider locale={locale} messages={messages}>
+            {children}
+          </NextIntlClientProvider>
         </body>
       </html>
     </ClerkProvider>

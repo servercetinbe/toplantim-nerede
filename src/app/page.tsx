@@ -22,16 +22,14 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { getReservationsFromStorage, saveReservationToStorage } from "../utils/reservationStorage";
+import { formatReservationTime } from "../utils/formatDate";
+import { checkReservationConflict } from "../utils/conflictCheck";
 
 interface Room {
   id: string;
   name: string;
   capacity: number;
-}
-
-interface Company {
-  name: string;
-  rooms: Room[];
 }
 
 interface Reservation {
@@ -51,29 +49,7 @@ interface Reservation {
   } | null;
 }
 
-// Helper function to format the reservation time
-const formatReservationTime = (reservation: Reservation) => {
-  const startTime = new Date(reservation.startTime);
-  const endTime = new Date(reservation.endTime);
-
-  const dateStr = startTime.toLocaleDateString("tr-TR", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-
-  const timeStr = `${startTime.toLocaleTimeString("tr-TR", {
-    hour: "2-digit",
-    minute: "2-digit",
-  })} - ${endTime.toLocaleTimeString("tr-TR", {
-    hour: "2-digit",
-    minute: "2-digit",
-  })}`;
-
-  return `${dateStr} ${timeStr}`;
-};
-
-const companies: Company[] = [
+const companies = [
   {
     name: "Puzzle",
     rooms: [
@@ -88,7 +64,7 @@ const companies: Company[] = [
 ];
 
 const Home = (): React.ReactElement => {
-  const { user } = useUser();
+  const { user, isSignedIn } = useUser(); // Clerk ile kimlik doğrulama
   const [meetingRooms, setMeetingRooms] = useState<Room[]>([]);
   const [selectedRoom, setSelectedRoom] = useState<string>("");
   const [startTime, setStartTime] = useState<string>("");
@@ -112,25 +88,15 @@ const Home = (): React.ReactElement => {
 
   // Fetch meeting rooms and reservations on component mount
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [roomsResponse, reservationsResponse] = await Promise.all([
-          fetch("/api/meetingRooms"),
-          fetch("/api/reservationList"),
-        ]);
+    const rooms = [
+      { id: "puzzleA", name: "Puzzle A", capacity: 10 },
+      { id: "passengerA", name: "Passenger A", capacity: 15 },
+      { id: "passengerB", name: "Passenger B", capacity: 12 },
+    ];
 
-        const rooms = await roomsResponse.json();
-        const reservationsData = await reservationsResponse.json();
-
-        setMeetingRooms(rooms);
-        setReservations(reservationsData);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        showSnackbar("Error fetching data", "error");
-      }
-    };
-
-    fetchData();
+    const reservations = getReservationsFromStorage();
+    setMeetingRooms(rooms);
+    setReservations(reservations);
   }, []);
 
   // Handle company selection
@@ -141,49 +107,50 @@ const Home = (): React.ReactElement => {
     setSelectedRoom("");
   };
 
-  // Handle reservation
+  // handleReservation fonksiyonunda çakışma kontrolünü uygulama
   const handleReservation = async () => {
     if (!selectedRoom || !startTime || !endTime) {
       showSnackbar("Please fill in all required fields", "error");
       return;
     }
 
-    const reservationData = {
+    if (!isSignedIn) {
+      showSnackbar("You need to be signed in to make a reservation", "error");
+      return;
+    }
+
+    // Çakışma kontrolü
+    if (checkReservationConflict(startTime, endTime, selectedRoom)) {
+      showSnackbar("Selected time conflicts with an existing reservation", "error");
+      return;
+    }
+
+    const email = user?.primaryEmailAddress?.emailAddress || "guest@example.com";
+    const name = user?.fullName || user?.username || email;
+
+    // Oda bilgilerini alın
+    const room = meetingRooms.find(r => r.id === selectedRoom);
+
+    const newReservation: Reservation = {
+      id: String(new Date().getTime()),
       roomId: selectedRoom,
       startTime,
       endTime,
-      userId: user?.id,
+      room: room ? { id: room.id, name: room.name, capacity: room.capacity } : undefined,
+      user: { id: user?.id || "guest", name, email },
     };
 
-    try {
-      const response = await fetch("/api/reservation", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(reservationData),
-      });
+    // LocalStorage'a yeni rezervasyonu kaydet
+    saveReservationToStorage(newReservation);
 
-      if (response.ok) {
-        showSnackbar("Reservation successful", "success");
+    showSnackbar("Reservation successful", "success");
 
-        // Refresh reservations
-        const updatedReservations = await fetch("/api/reservationList").then(res => res.json());
-        setReservations(updatedReservations);
+    // Güncellenmiş rezervasyon listesini al
+    const updatedReservations = getReservationsFromStorage();
+    setReservations(updatedReservations);
 
-        setStartTime("");
-        setEndTime("");
-      } else {
-        const errorData = await response.json();
-        const errorMsg = errorData.error.includes("Room already booked")
-          ? "This room is already booked for the selected time. Please choose another time."
-          : `Reservation failed: ${errorData.error}`;
-        showSnackbar(errorMsg, "error");
-      }
-    } catch (error) {
-      console.error("Reservation error:", error);
-      showSnackbar("Failed to make reservation", "error");
-    }
+    setStartTime("");
+    setEndTime("");
   };
 
   return (

@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+
 import { NextRequest, NextResponse } from "next/server";
 
 const dataPath = path.join(process.cwd(), "data", "reservations.json");

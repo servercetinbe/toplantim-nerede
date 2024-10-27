@@ -1,10 +1,6 @@
 import { getReservationsFromStorage } from "./reservationStorage";
 
-export const checkReservationConflict = (
-  startTime: string,
-  endTime: string,
-  roomId: string
-): boolean => {
+export const checkReservationConflict = (startTime: string, endTime: string, roomId: string): boolean => {
   const reservations = getReservationsFromStorage();
   const newStart = new Date(startTime).getTime();
   const newEnd = new Date(endTime).getTime();

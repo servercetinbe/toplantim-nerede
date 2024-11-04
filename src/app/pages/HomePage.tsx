@@ -1,13 +1,39 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Container, Typography, Paper, Grid, Button, Snackbar, Alert, Box, TextField, Select, MenuItem, InputLabel, FormControl, Checkbox, ListItemText } from "@mui/material";
-import { useUser } from "@clerk/nextjs";
-import CompanySelector from "../components/CompanySelector";
-import RoomSelector from "../components/RoomSelector";
-import ReservationList from "../components/ReservationList";
-import { getReservationsFromStorage, saveReservationToStorage } from "@/utils/reservationStorage";
 import { checkReservationConflict } from "@/utils/conflictCheck";
+import { getReservationsFromStorage, saveReservationToStorage } from "@/utils/reservationStorage";
+import { useUser } from "@clerk/nextjs";
+import {
+  Alert,
+  Box,
+  Button,
+  Checkbox,
+  Container,
+  FormControl,
+  Grid,
+  ListItemText,
+  MenuItem,
+  Paper,
+  Select,
+  Snackbar,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DesktopDateTimePicker } from "@mui/x-date-pickers/DesktopDateTimePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import dayjs, { Dayjs } from "dayjs";
+import "dayjs/locale/tr";
+import updateLocale from "dayjs/plugin/updateLocale";
+import CompanySelector from "../components/CompanySelector";
+import ReservationList from "../components/ReservationList";
+import RoomSelector from "../components/RoomSelector";
+
+dayjs.extend(updateLocale);
+dayjs.updateLocale("tr", {
+  weekStart: 1,
+});
 
 interface Room {
   id: string;
@@ -35,20 +61,52 @@ interface User {
 }
 
 const companies = [
-  { name: "Puzzle", rooms: [{ id: "puzzleA", name: "Puzzle A", capacity: 10 }, { id: "passengerA", name: "Passenger A", capacity: 15 }] },
+  {
+    name: "Puzzle",
+    rooms: [
+      { id: "puzzleA", name: "Puzzle A", capacity: 10 },
+      { id: "passengerA", name: "Passenger A", capacity: 15 },
+    ],
+  },
   { name: "Passenger", rooms: [{ id: "passengerB", name: "Passenger B", capacity: 12 }] },
 ];
 
-const HomePage = () => {
+const officialHolidays = [
+  "2024-01-01",
+  "2024-04-23",
+  "2024-05-01",
+  "2024-05-19",
+  "2024-07-15",
+  "2024-08-30",
+  "2024-10-29",
+  "2025-01-01",
+  "2025-04-23",
+  "2025-05-01",
+  "2025-05-19",
+  "2025-03-29",
+  "2025-03-30",
+  "2025-03-31",
+  "2025-04-01",
+  "2025-06-30",
+  "2025-07-01",
+  "2025-07-02",
+  "2025-07-03",
+  "2025-07-04",
+  "2025-07-15",
+  "2025-08-30",
+  "2025-10-29",
+];
+
+const HomePage = (): React.ReactElement => {
   const { user, isSignedIn } = useUser();
   const [meetingRooms, setMeetingRooms] = useState<Room[]>([]);
   const [selectedRoom, setSelectedRoom] = useState<string>("");
-  const [startTime, setStartTime] = useState<string>("");
-  const [endTime, setEndTime] = useState<string>("");
+  const [startTime, setStartTime] = useState<Dayjs | null>(null);
+  const [endTime, setEndTime] = useState<Dayjs | null>(null);
   const [selectedCompany, setSelectedCompany] = useState<string>("");
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [participants, setParticipants] = useState<string[]>([]);
-  const [users, setUsers] = useState<User[]>([]); // Clerk kullanıcıları
+  const [users, setUsers] = useState<User[]>([]);
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">("success");
@@ -70,26 +128,41 @@ const HomePage = () => {
     setReservations(reservations);
   }, []);
 
+  const shouldDisableDate = (date: Dayjs) => {
+    const day = date.day();
+    const isWeekend = day === 0 || day === 6;
+    const isHoliday = officialHolidays.includes(date.format("YYYY-MM-DD"));
+
+    return isWeekend || isHoliday;
+  };
+
+  const handleStartTimeChange = (newValue: Dayjs | null) => {
+    setStartTime(newValue);
+    if (newValue) {
+      setEndTime(newValue.add(1, "hour"));
+    }
+  };
+
   const handleReservation = () => {
     if (!selectedRoom || !startTime || !endTime) {
-      showSnackbar("Please fill in all required fields", "error");
+      showSnackbar("Lütfen tüm gerekli alanları doldurun", "error");
       return;
     }
 
     if (!isSignedIn) {
-      showSnackbar("You need to be signed in to make a reservation", "error");
+      showSnackbar("Rezervasyon yapmak için giriş yapmalısınız", "error");
       return;
     }
 
-    if (checkReservationConflict(startTime, endTime, selectedRoom)) {
-      showSnackbar("Selected time conflicts with an existing reservation", "error");
+    if (checkReservationConflict(startTime.toString(), endTime.toString(), selectedRoom)) {
+      showSnackbar("Seçilen zaman dilimi mevcut bir rezervasyonla çakışıyor", "error");
       return;
     }
 
     const email = user?.primaryEmailAddress?.emailAddress || "guest@example.com";
     const name = user?.fullName || user?.username || email;
 
-    const room = meetingRooms.find(r => r.id === selectedRoom);
+    const room = meetingRooms.find((r) => r.id === selectedRoom);
 
     const selectedParticipants = users
       .filter((usr) => participants.includes(usr.id))
@@ -98,22 +171,22 @@ const HomePage = () => {
     const newReservation: Reservation = {
       id: String(new Date().getTime()),
       roomId: selectedRoom,
-      startTime,
-      endTime,
+      startTime: startTime.toString(),
+      endTime: endTime.toString(),
       room: room ? { id: room.id, name: room.name, capacity: room.capacity } : undefined,
       user: { id: user?.id || "guest", name, email },
       participants: selectedParticipants,
     };
 
     saveReservationToStorage(newReservation);
-    showSnackbar("Reservation successful", "success");
+    showSnackbar("Rezervasyon başarıyla yapıldı", "success");
 
     const updatedReservations = [...reservations, newReservation];
     updatedReservations.sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
     setReservations(updatedReservations);
 
-    setStartTime("");
-    setEndTime("");
+    setStartTime(null);
+    setEndTime(null);
     setParticipants([]);
   };
 
@@ -128,11 +201,15 @@ const HomePage = () => {
   return (
     <Container maxWidth="md" style={{ padding: "30px" }}>
       <Box textAlign="center" mb={4}>
-        <Typography variant="h3" gutterBottom>Meeting Room Booking</Typography>
+        <Typography variant="h3" gutterBottom>
+          Toplantı Odası Rezervasyonu
+        </Typography>
       </Box>
 
-      <Paper elevation={3} style={{ padding: "30px", marginBottom: "20px" }}>
-        <Typography variant="h5" gutterBottom>Select Company</Typography>
+      <Paper elevation={5} sx={{ padding: "30px", marginBottom: "30px", borderRadius: "16px" }}>
+        <Typography variant="h5" gutterBottom>
+          Firma Seç
+        </Typography>
         <CompanySelector
           companies={companies}
           selectedCompany={selectedCompany}
@@ -141,45 +218,53 @@ const HomePage = () => {
         />
       </Paper>
 
-      <Paper elevation={3} style={{ padding: "30px", marginBottom: "20px" }}>
-        <Typography variant="h5" gutterBottom>Select Meeting Room</Typography>
+      <Paper elevation={5} sx={{ padding: "30px", marginBottom: "30px", borderRadius: "16px" }}>
+        <Typography variant="h5" gutterBottom>
+          Toplantı Odası Seç
+        </Typography>
         <RoomSelector meetingRooms={meetingRooms} selectedRoom={selectedRoom} setSelectedRoom={setSelectedRoom} />
       </Paper>
 
-      <Paper elevation={3} style={{ padding: "30px", marginBottom: "20px" }}>
-        <Typography variant="h5" gutterBottom>Schedule Time</Typography>
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              label="Start Time"
-              type="datetime-local"
-              fullWidth
-              value={startTime}
-              onChange={(e) => setStartTime(e.target.value)}
-              InputLabelProps={{ shrink: true }}
-            />
+      <Paper elevation={5} sx={{ padding: "30px", marginBottom: "30px", borderRadius: "16px" }}>
+        <Typography variant="h5" gutterBottom>
+          Zaman Planla
+        </Typography>
+        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="tr">
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <DesktopDateTimePicker
+                label="Başlangıç Zamanı"
+                value={startTime}
+                onChange={handleStartTimeChange}
+                shouldDisableDate={shouldDisableDate}
+                renderInput={(params) => <TextField {...params} fullWidth />}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <DesktopDateTimePicker
+                label="Bitiş Zamanı"
+                value={endTime}
+                onChange={(newValue) => setEndTime(newValue)}
+                shouldDisableDate={shouldDisableDate}
+                renderInput={(params) => <TextField {...params} fullWidth />}
+              />
+            </Grid>
           </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              label="End Time"
-              type="datetime-local"
-              fullWidth
-              value={endTime}
-              onChange={(e) => setEndTime(e.target.value)}
-              InputLabelProps={{ shrink: true }}
-            />
-          </Grid>
-        </Grid>
+        </LocalizationProvider>
       </Paper>
 
-      <Paper elevation={3} style={{ padding: "30px", marginBottom: "20px" }}>
-        <Typography variant="h5" gutterBottom>Select Participants</Typography>
+      <Paper elevation={5} sx={{ padding: "30px", marginBottom: "30px", borderRadius: "16px" }}>
+        <Typography variant="h5" gutterBottom>
+          Katılımcıları Seç
+        </Typography>
         <FormControl fullWidth>
           <Select
             multiple
             value={participants}
             onChange={(event) => setParticipants(event.target.value as string[])}
-            renderValue={(selected) => selected.map((id) => users.find((user) => user.id === id)?.name).join(", ")}
+            renderValue={(selected) =>
+              selected.map((id) => users.find((user) => user.id === id)?.name).join(", ")
+            }
           >
             {users.map((user) => (
               <MenuItem key={user.id} value={user.id}>
@@ -200,7 +285,7 @@ const HomePage = () => {
         disabled={!selectedRoom || !startTime || !endTime}
         sx={{ marginBottom: "20px" }}
       >
-        Schedule Meeting
+        Toplantı Planla
       </Button>
 
       <ReservationList reservations={reservations} />

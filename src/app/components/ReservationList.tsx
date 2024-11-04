@@ -1,9 +1,9 @@
 import React from "react";
-import { List, ListItem, ListItemText, Typography, Paper, Box } from "@mui/material";
+import { formatReservationTime } from "@/utils/formatDate";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import PeopleIcon from "@mui/icons-material/People";
 import PersonIcon from "@mui/icons-material/Person";
-import { formatReservationTime } from "@/utils/formatDate";
+import { Box, List, ListItem, ListItemText, Paper, Typography } from "@mui/material";
 
 interface Reservation {
   id: string;
@@ -28,7 +28,7 @@ interface ReservationListProps {
 
 const ReservationList: React.FC<ReservationListProps> = ({ reservations }) => (
   <List>
-    {reservations.map((reservation) => (
+    {reservations.map(reservation => (
       <Paper
         key={reservation.id}
         elevation={3}

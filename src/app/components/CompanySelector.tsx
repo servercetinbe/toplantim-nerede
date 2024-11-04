@@ -1,5 +1,5 @@
 import React from "react";
-import { Select, MenuItem, Typography, SelectChangeEvent } from "@mui/material";
+import { MenuItem, Select, SelectChangeEvent, Typography } from "@mui/material";
 
 interface Room {
   id: string;
@@ -19,9 +19,14 @@ interface CompanySelectorProps {
   setMeetingRooms: React.Dispatch<React.SetStateAction<Room[]>>;
 }
 
-const CompanySelector: React.FC<CompanySelectorProps> = ({ companies, selectedCompany, setSelectedCompany, setMeetingRooms }) => {
+const CompanySelector: React.FC<CompanySelectorProps> = ({
+  companies,
+  selectedCompany,
+  setSelectedCompany,
+  setMeetingRooms,
+}) => {
   const handleChange = (event: SelectChangeEvent<string>) => {
-    const company = companies.find((c) => c.name === event.target.value);
+    const company = companies.find(c => c.name === event.target.value);
     setSelectedCompany(company?.name || "");
     setMeetingRooms(company?.rooms || []);
   };
@@ -29,9 +34,9 @@ const CompanySelector: React.FC<CompanySelectorProps> = ({ companies, selectedCo
   return (
     <Select value={selectedCompany} onChange={handleChange} displayEmpty fullWidth>
       <MenuItem value="" disabled>
-        <Typography>Select Company</Typography>
+        <Typography>Firma Seç</Typography>
       </MenuItem>
-      {companies.map((company) => (
+      {companies.map(company => (
         <MenuItem key={company.name} value={company.name}>
           {company.name}
         </MenuItem>

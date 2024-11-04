@@ -13,6 +13,7 @@ export interface Reservation {
     name?: string;
     email: string;
   } | null;
+  participants?: Array<{ id: string; name: string }>; // Participants özelliği eklendi
 }
 
 // LocalStorage'dan rezervasyonları almak için yardımcı fonksiyon

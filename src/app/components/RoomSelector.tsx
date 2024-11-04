@@ -1,5 +1,5 @@
 import React from "react";
-import { Select, MenuItem, Typography, SelectChangeEvent } from "@mui/material";
+import { MenuItem, Select, SelectChangeEvent, Typography } from "@mui/material";
 
 interface Room {
   id: string;
@@ -21,9 +21,9 @@ const RoomSelector: React.FC<RoomSelectorProps> = ({ meetingRooms, selectedRoom,
   return (
     <Select value={selectedRoom} onChange={handleChange} displayEmpty fullWidth>
       <MenuItem value="" disabled>
-        <Typography>Select Room</Typography>
+        <Typography>Toplantı Odası Seç</Typography>
       </MenuItem>
-      {meetingRooms.map((room) => (
+      {meetingRooms.map(room => (
         <MenuItem key={room.id} value={room.id}>
           {room.name} - Capacity: {room.capacity}
         </MenuItem>

@@ -5,6 +5,7 @@
       "dom.iterable",
       "esnext"
     ],
+    "target": "ES6",
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -16,6 +17,7 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+    "types": ["next", "react", "node"],
     "plugins": [
       {
         "name": "next"
@@ -32,7 +34,13 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    "jest.setup.js",
+    "jest.config.js",
+    "next.config.mjs",
+    "__tests__/**/*",
+    "babel.config.js",
+    "mongo.js"
   ],
   "exclude": [
     "node_modules"

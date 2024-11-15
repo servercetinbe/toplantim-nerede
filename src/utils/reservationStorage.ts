@@ -13,16 +13,14 @@ export interface Reservation {
     name?: string;
     email: string;
   } | null;
-  participants?: Array<{ id: string; name: string }>; // Participants özelliği eklendi
+  participants?: Array<{ id: string; name: string }>;
 }
 
-// LocalStorage'dan rezervasyonları almak için yardımcı fonksiyon
 export const getReservationsFromStorage = (): Reservation[] => {
   const reservations = localStorage.getItem("reservations");
   return reservations ? JSON.parse(reservations) : [];
 };
 
-// LocalStorage'a rezervasyon kaydetmek için yardımcı fonksiyon
 export const saveReservationToStorage = (reservation: Reservation): void => {
   const currentReservations = getReservationsFromStorage();
   currentReservations.push(reservation);

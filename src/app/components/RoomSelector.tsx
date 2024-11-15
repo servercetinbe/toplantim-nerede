@@ -1,5 +1,5 @@
 import React from "react";
-import { MenuItem, Select, SelectChangeEvent, Typography } from "@mui/material";
+import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, Typography } from "@mui/material";
 
 interface Room {
   id: string;
@@ -19,16 +19,36 @@ const RoomSelector: React.FC<RoomSelectorProps> = ({ meetingRooms, selectedRoom,
   };
 
   return (
-    <Select value={selectedRoom} onChange={handleChange} displayEmpty fullWidth>
-      <MenuItem value="" disabled>
-        <Typography>Toplantı Odası Seç</Typography>
-      </MenuItem>
-      {meetingRooms.map(room => (
-        <MenuItem key={room.id} value={room.id}>
-          {room.name} - Capacity: {room.capacity}
+    <FormControl fullWidth>
+      <InputLabel id="room-select-label">Toplantı Odası Seç</InputLabel>
+      <Select
+        labelId="room-select-label"
+        value={selectedRoom}
+        onChange={handleChange}
+        label="Toplantı Odası Seç"
+        sx={{
+          borderRadius: "12px",
+          "& .MuiOutlinedInput-notchedOutline": {
+            borderColor: "rgba(0, 0, 0, 0.23)",
+          },
+          "&:hover .MuiOutlinedInput-notchedOutline": {
+            borderColor: "rgba(0, 0, 0, 0.87)",
+          },
+          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+            borderColor: "#4338CA",
+          },
+        }}
+      >
+        <MenuItem value="" disabled>
+          <Typography>Toplantı Odası Seç</Typography>
         </MenuItem>
-      ))}
-    </Select>
+        {meetingRooms.map(room => (
+          <MenuItem key={room.id} value={room.id}>
+            {room.name} - Kapasite: {room.capacity}
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
   );
 };
 

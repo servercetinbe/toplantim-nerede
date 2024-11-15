@@ -1,5 +1,5 @@
 import React from "react";
-import { MenuItem, Select, SelectChangeEvent, Typography } from "@mui/material";
+import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, Typography } from "@mui/material";
 
 interface Room {
   id: string;
@@ -32,16 +32,36 @@ const CompanySelector: React.FC<CompanySelectorProps> = ({
   };
 
   return (
-    <Select value={selectedCompany} onChange={handleChange} displayEmpty fullWidth>
-      <MenuItem value="" disabled>
-        <Typography>Firma Seç</Typography>
-      </MenuItem>
-      {companies.map(company => (
-        <MenuItem key={company.name} value={company.name}>
-          {company.name}
+    <FormControl fullWidth>
+      <InputLabel id="company-select-label">Firma Seç</InputLabel>
+      <Select
+        labelId="company-select-label"
+        value={selectedCompany}
+        onChange={handleChange}
+        label="Firma Seç"
+        sx={{
+          borderRadius: "12px",
+          "& .MuiOutlinedInput-notchedOutline": {
+            borderColor: "rgba(0, 0, 0, 0.23)",
+          },
+          "&:hover .MuiOutlinedInput-notchedOutline": {
+            borderColor: "rgba(0, 0, 0, 0.87)",
+          },
+          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+            borderColor: "#4338CA",
+          },
+        }}
+      >
+        <MenuItem value="" disabled>
+          <Typography>Firma Seç</Typography>
         </MenuItem>
-      ))}
-    </Select>
+        {companies.map(company => (
+          <MenuItem key={company.name} value={company.name}>
+            {company.name}
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
   );
 };
 

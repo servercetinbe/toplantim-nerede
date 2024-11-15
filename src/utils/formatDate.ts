@@ -1,22 +1,17 @@
 import { Reservation } from "./reservationStorage";
 
 export const formatReservationTime = (reservation: Reservation): string => {
-  const startTime = new Date(reservation.startTime);
-  const endTime = new Date(reservation.endTime);
+  const startDate = new Date(reservation.startTime);
+  const endDate = new Date(reservation.endTime);
 
-  const dateStr = startTime.toLocaleDateString("tr-TR", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+  const formatDate = (date: Date) =>
+    new Intl.DateTimeFormat("tr-TR", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(date);
 
-  const timeStr = `${startTime.toLocaleTimeString("tr-TR", {
-    hour: "2-digit",
-    minute: "2-digit",
-  })} - ${endTime.toLocaleTimeString("tr-TR", {
-    hour: "2-digit",
-    minute: "2-digit",
-  })}`;
-
-  return `${dateStr} ${timeStr}`;
+  return `${formatDate(startDate)} - ${formatDate(endDate)}`;
 };

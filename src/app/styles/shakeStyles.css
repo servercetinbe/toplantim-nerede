@@ -1,0 +1,10 @@
+.shake {
+    animation: vibrate 0.3s linear infinite, glow 2s ease-in-out infinite;
+    box-shadow: 0 8px 24px rgba(220, 38, 38, 0.8);
+  }
+  
+  .pulse {
+    animation: pulse 2s infinite;
+    box-shadow: 0 4px 14px rgba(67, 56, 202, 0.4);
+  }
+  

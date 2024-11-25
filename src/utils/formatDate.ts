@@ -1,4 +1,4 @@
-import { Reservation } from "./reservationStorage";
+import { Reservation } from "@/app/types/Reservation";
 
 export const formatReservationTime = (reservation: Reservation): string => {
   const startDate = new Date(reservation.startTime);

@@ -1,6 +1,5 @@
 import React from "react";
 import { formatReservationTime } from "@/utils/formatDate";
-import { Reservation } from "@/utils/reservationStorage";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import GroupIcon from "@mui/icons-material/Group";
 import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
@@ -10,10 +9,7 @@ import TodayIcon from "@mui/icons-material/Today";
 import WarningIcon from "@mui/icons-material/Warning";
 import { Alert, Box, Chip, List, ListItem, ListItemText, Paper, Stack, Typography } from "@mui/material";
 
-interface ReservationListProps {
-  reservations: Reservation[];
-  currentUser: string | undefined;
-}
+import { ReservationListProps } from "../types/ReservationListProps";
 
 const ReservationList: React.FC<ReservationListProps> = ({ reservations, currentUser }) => {
   const now = new Date();

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { getReservationsFromStorage, Reservation } from "@/utils/reservationStorage";
+import { getReservationsFromStorage } from "@/utils/reservationStorage";
 import { useUser } from "@clerk/nextjs";
 import {
   Box,
@@ -17,6 +17,7 @@ import {
 
 import NextMeetingAlert from "../components/NextMeetingAlert";
 import ReservationList from "../components/ReservationList";
+import { Reservation } from "../types/Reservation";
 
 const ReservationsPage: React.FC = () => {
   const { user, isSignedIn } = useUser();
@@ -32,7 +33,7 @@ const ReservationsPage: React.FC = () => {
 
     const activeAndUpcomingReservations = allReservations.filter(reservation => {
       const endTime = new Date(reservation.endTime).getTime();
-      return endTime > currentTime; // Bitiş zamanı geçmemiş rezervasyonları seç
+      return endTime > currentTime; // Select reservations that have not ended yet
     });
 
     setReservations(activeAndUpcomingReservations);

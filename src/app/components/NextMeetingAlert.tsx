@@ -1,12 +1,14 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { getReservationsFromStorage, Reservation } from "@/utils/reservationStorage";
+import { getReservationsFromStorage } from "@/utils/reservationStorage";
 import { Dialog, DialogContent, DialogTitle, IconButton, Paper, Typography } from "@mui/material";
 import { Bell, BellRing } from "lucide-react";
 
 import "../styles/animations.css";
 import "../styles/shakeStyles.css";
+
+import { Reservation } from "../types/Reservation";
 
 const NextMeetingAlert = ({ userId }: { userId: string }): JSX.Element | null => {
   const [isOpen, setIsOpen] = useState(false);

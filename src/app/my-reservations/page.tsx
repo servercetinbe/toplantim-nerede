@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { getReservationsFromStorage, Reservation } from "@/utils/reservationStorage";
+import { getReservationsFromStorage } from "@/utils/reservationStorage";
 import { useUser } from "@clerk/nextjs";
 import {
   Box,
@@ -17,6 +17,7 @@ import {
 
 import NextMeetingAlert from "../components/NextMeetingAlert";
 import ReservationList from "../components/ReservationList";
+import { Reservation } from "../types/Reservation";
 
 const MyReservationsPage: React.FC = () => {
   const { user, isSignedIn } = useUser();
@@ -88,7 +89,7 @@ const MyReservationsPage: React.FC = () => {
         </Box>
         {isSignedIn && user && <NextMeetingAlert userId={user.id} />}
 
-        {/* Oda Filtreleme */}
+        {/* Room Filtering */}
         <Box
           sx={{
             mb: 4,

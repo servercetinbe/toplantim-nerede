@@ -1,17 +1,7 @@
 import React from "react";
 import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, Typography } from "@mui/material";
 
-interface Room {
-  id: string;
-  name: string;
-  capacity: number;
-}
-
-interface RoomSelectorProps {
-  meetingRooms: Room[];
-  selectedRoom: string;
-  setSelectedRoom: React.Dispatch<React.SetStateAction<string>>;
-}
+import { RoomSelectorProps } from "../types/RoomSelectorProps";
 
 const RoomSelector: React.FC<RoomSelectorProps> = ({ meetingRooms, selectedRoom, setSelectedRoom }) => {
   const handleChange = (event: SelectChangeEvent<string>) => {

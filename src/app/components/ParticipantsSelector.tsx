@@ -29,7 +29,7 @@ const ParticipantSelector: React.FC<ParticipantSelectorProps> = ({
       <Autocomplete
         multiple
         options={users}
-        getOptionLabel={option => option.name}
+        getOptionLabel={option => `${option.first_name} ${option.last_name}`}
         value={users.filter(user => participants.includes(user.id))}
         onChange={(_, newValue) => setParticipants(newValue.map(user => user.id))}
         renderInput={params => (

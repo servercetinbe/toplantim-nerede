@@ -1,6 +1,8 @@
+"use client";
+
 import { useEffect, useState } from "react";
 
-import { User } from "../types/User";
+import { ApiResponse, User } from "../types/User";
 
 type FetchUsersHook = {
   users: User[];
@@ -16,15 +18,35 @@ const useFetchUsers = (): FetchUsersHook => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch("/api/users");
+        const API_URL = "https://development.api.bookease.app/api/user";
+        const BEARER_TOKEN = "26|SMYbDcpBJ4LQkmTVuHwxcsrzPurCucZLpqymsDcp3fe20c94";
+
+        const response = await fetch(API_URL, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${BEARER_TOKEN}`,
+            "Content-Type": "application/json",
+          },
+        });
+
         if (!response.ok) {
-          throw new Error("Failed to fetch users");
+          throw new Error(`HTTP Error: ${response.status}`);
         }
-        const data = await response.json();
-        setUsers(data);
+
+        const responseData: ApiResponse = await response.json();
+
+        setUsers(
+          responseData.data.map((user: User) => ({
+            id: user.id,
+            first_name: user.first_name || "",
+            last_name: user.last_name || "",
+            email: user.email || "",
+          }))
+        );
+        setLoading(false);
       } catch (error) {
-        setError((error as Error).message);
-      } finally {
+        const errorMessage = error instanceof Error ? error.message : "Failed to fetch users";
+        setError(errorMessage);
         setLoading(false);
       }
     };

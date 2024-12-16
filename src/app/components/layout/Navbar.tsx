@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { SignOutButton, UserButton, useUser } from "@clerk/nextjs";
 import { AppBar, Box, Button, Container, Drawer, IconButton, Stack, Toolbar, Typography } from "@mui/material";
-import { styled } from "@mui/material/styles"; // `useTheme` kaldırıldı.
+import { styled } from "@mui/material/styles";
 import { X as CloseIcon, Menu as MenuIcon } from "lucide-react";
 
 const StyledAppBar = styled(AppBar)({
@@ -12,7 +12,7 @@ const StyledAppBar = styled(AppBar)({
   backdropFilter: "blur(10px)",
   boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
   borderBottom: "1px solid rgba(255, 255, 255, 0.3)",
-  color: "#1976d2", // Doğrudan renk kodu kullanarak tema rengini belirtilmiş.
+  color: "#1976d2",
   transition: "all 0.3s ease",
   position: "fixed",
   "& .MuiToolbar-root": {
@@ -118,7 +118,9 @@ const Navbar = (): React.ReactElement => {
       <StyledAppBar>
         <Container maxWidth="xl">
           <Toolbar sx={{ justifyContent: "space-between", px: { xs: 1, sm: 2 } }}>
-            <LogoText onClick={() => router.push("/")}>Rezervasyon Yap !</LogoText>
+            <LogoText aria-label="Ana Sayfaya Git" role="link" onClick={() => router.push("/")}>
+              Rezervasyon Yap !
+            </LogoText>
 
             <Stack direction="row" spacing={2} alignItems="center" sx={{ display: { xs: "none", md: "flex" } }}>
               {navContent}

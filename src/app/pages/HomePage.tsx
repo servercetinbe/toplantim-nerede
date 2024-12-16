@@ -3,7 +3,15 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
-import { Alert, alpha, Box, Button, Container, Grid, Paper, Snackbar, Typography } from "@mui/material";
+import Alert from "@mui/material/Alert";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Container from "@mui/material/Container";
+import Grid from "@mui/material/Grid";
+import Paper from "@mui/material/Paper";
+import Snackbar from "@mui/material/Snackbar";
+import { alpha } from "@mui/material/styles";
+import Typography from "@mui/material/Typography";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import dayjs, { Dayjs } from "dayjs";
@@ -219,7 +227,8 @@ const HomePage = (): React.ReactElement => {
           }}
         >
           <Typography
-            variant="h3"
+            component="h1"
+            aria-label="Toplantı odası rezervasyonu ana başlığı"
             sx={{
               fontWeight: 800,
               fontSize: { xs: "1.75rem", md: "2.5rem" },
@@ -231,6 +240,7 @@ const HomePage = (): React.ReactElement => {
           </Typography>
           <Typography
             variant="subtitle1"
+            aria-label="Sistem açıklaması: Verimli toplantılar için rezervasyon sistemi"
             sx={{
               fontSize: { xs: "1rem", md: "1.1rem" },
               opacity: 0.9,
@@ -259,13 +269,13 @@ const HomePage = (): React.ReactElement => {
               <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
                 <Box sx={{ display: "flex", alignItems: "center" }}>
                   <Building2 size={24} style={{ marginRight: "12px", color: "#4338CA" }} />
-                  <Typography variant="h6" fontWeight={600}>
+                  <Typography component="h2" variant="h6" fontWeight={600} aria-label="Firma ve Oda Seçimi Alanı">
                     Firma ve Oda Seçimi
                   </Typography>
                 </Box>
                 <Box sx={{ display: "flex", alignItems: "center" }}>
                   <CalendarClock size={24} style={{ marginRight: "12px", color: "#4338CA" }} />
-                  <Typography variant="h6" fontWeight={600}>
+                  <Typography component="h2" variant="h6" fontWeight={600} aria-label="Toplantı Saati Seçim Alanı">
                     Zaman Seçimi
                   </Typography>
                 </Box>
@@ -281,6 +291,7 @@ const HomePage = (): React.ReactElement => {
                     selectedCompany={selectedCompany}
                     setSelectedCompany={setSelectedCompany}
                     setMeetingRooms={setMeetingRooms}
+                    aria-label="Firma Seçici"
                   />
                 </Grid>
                 <Grid item xs={6} sm={6} md={6} sx={{ display: "flex", justifyContent: "flex-end" }}>
@@ -288,6 +299,7 @@ const HomePage = (): React.ReactElement => {
                     meetingRooms={meetingRooms}
                     selectedRoom={selectedRoom}
                     setSelectedRoom={setSelectedRoom}
+                    aria-label="Oda Seçici"
                   />
                 </Grid>
               </Grid>
@@ -302,6 +314,7 @@ const HomePage = (): React.ReactElement => {
                       value={startTime}
                       onChange={(value: Dayjs | null) => handleStartTimeChange(value)}
                       shouldDisableDate={shouldDisableDate}
+                      aria-label="Başlangıç Zamanı Seçici"
                     />
                   </LocalizationProvider>
                 </Grid>
@@ -312,6 +325,7 @@ const HomePage = (): React.ReactElement => {
                     onChange={(newValue: Dayjs | null) => setEndTime(newValue)}
                     shouldDisableDate={shouldDisableDate}
                     minDateTime={startTime || undefined}
+                    aria-label="Bitiş Zamanı Seçici"
                   />
                 </Grid>
               </Grid>
@@ -326,17 +340,18 @@ const HomePage = (): React.ReactElement => {
                 recurrenceEndDate={recurrenceEndDate}
                 setRecurrenceEndDate={setRecurrenceEndDate}
                 shouldDisableDate={shouldDisableDate}
+                aria-label="Tekrarlama Ayarları"
               />
             </Grid>
 
             <Grid item xs={12} md={6}>
               <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
                 <Users size={24} style={{ marginRight: "12px", color: "#4338CA" }} />
-                <Typography variant="h6" fontWeight={600}>
+                <Typography component="h3" variant="h6" fontWeight={600} aria-label="Katılımcılar Alanı">
                   Katılımcılar
                 </Typography>
               </Box>
-              <AsyncUserSelectbox value={participants} onChange={setParticipants} />
+              <AsyncUserSelectbox value={participants} onChange={setParticipants} aria-label="Katılımcı Seçici" />
             </Grid>
 
             {/* Submit Button */}
@@ -346,6 +361,7 @@ const HomePage = (): React.ReactElement => {
                 onClick={handleReservation}
                 disabled={!selectedRoom || !startTime || !endTime || (enableRecurrence && !recurrenceEndDate)}
                 fullWidth
+                aria-label="Toplantıyı Planla"
                 sx={{
                   py: 1.5,
                   borderRadius: "12px",

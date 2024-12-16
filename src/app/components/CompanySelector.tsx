@@ -1,5 +1,9 @@
 import React from "react";
-import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, Typography } from "@mui/material";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import Select, { SelectChangeEvent } from "@mui/material/Select";
+import Typography from "@mui/material/Typography";
 
 import { Company } from "../types/Company";
 import { CompanySelectorProps } from "../types/CompanySelectorProps";
@@ -24,6 +28,7 @@ const CompanySelector: React.FC<CompanySelectorProps> = ({
         value={selectedCompany}
         onChange={handleChange}
         label="Firma Seç"
+        aria-label="Firma Seç"
         sx={{
           borderRadius: "12px",
           "& .MuiOutlinedInput-notchedOutline": {
@@ -38,7 +43,7 @@ const CompanySelector: React.FC<CompanySelectorProps> = ({
         }}
       >
         <MenuItem value="" disabled>
-          <Typography>Firma Seç</Typography>
+          <Typography component="h3">Firma Seç</Typography>
         </MenuItem>
         {companies.map((company: Company) => (
           <MenuItem key={company.name} value={company.name}>

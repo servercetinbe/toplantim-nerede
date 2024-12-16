@@ -1,7 +1,9 @@
 "use client";
 
 import React from "react";
-import { alpha, Autocomplete, TextField } from "@mui/material";
+import Autocomplete from "@mui/material/Autocomplete";
+import { alpha } from "@mui/material/styles";
+import TextField from "@mui/material/TextField";
 
 import useFetchUsers from "../hooks/useFetchUsers";
 
@@ -32,6 +34,7 @@ const AsyncUserSelectbox = ({
       options={users}
       loading={loading}
       value={selectedUsers}
+      aria-label="Katılımcı Seçimi"
       getOptionLabel={option => `${option.first_name} ${option.last_name}`}
       onChange={(_, newValue) => onChange(newValue.map(user => user.id))}
       renderInput={params => (
@@ -40,6 +43,7 @@ const AsyncUserSelectbox = ({
           label={label}
           variant="outlined"
           placeholder={value.length === 0 ? placeholder : ""}
+          aria-label={label}
           sx={{
             "& .MuiOutlinedInput-root": {
               borderRadius: "12px",

@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /api/sitemap.xml
+Disallow: /api/
+Disallow: /applications/
+Disallow: /admin/
+
+Sitemap: https://toplantim-nerede.vercel.app/api/sitemap.xml

@@ -81,6 +81,11 @@ const NextMeetingAlert = ({ userId }: { userId: string }): JSX.Element | null =>
       <IconButton
         onClick={() => setIsOpen(true)}
         className={currentMeeting ? "shake" : "pulse"}
+        aria-label={
+          currentMeeting
+            ? "Şu anda aktif bir toplantınız var, detayları görmek için tıklayın"
+            : "Sıradaki toplantınızın detaylarını görmek için tıklayın"
+        }
         sx={{
           position: "fixed",
           bottom: 20,
@@ -118,7 +123,16 @@ const NextMeetingAlert = ({ userId }: { userId: string }): JSX.Element | null =>
               marginBottom: "8px",
             }}
           />
-          <Typography variant="h5" fontWeight="bold" color="primary">
+          <Typography
+            variant="h5"
+            fontWeight="bold"
+            color="primary"
+            aria-label={
+              currentMeeting
+                ? `Şu anda aktif bir toplantınız var: ${currentMeeting.room?.name || "Bilinmiyor"} odasında`
+                : `Sıradaki toplantınız: ${nextMeeting?.room?.name || "Bilinmiyor"} odasında`
+            }
+          >
             {currentMeeting ? "Toplantınız Başladı" : "Sıradaki Toplantınız"}
           </Typography>
         </DialogTitle>
@@ -164,7 +178,7 @@ const NextMeetingAlert = ({ userId }: { userId: string }): JSX.Element | null =>
                 {(currentMeeting.participants ?? []).length > 0 ? (
                   currentMeeting.participants?.map(participant => (
                     <Typography key={participant.id} variant="body1" color="text.primary">
-                      {participant.name}
+                      {participant.first_name}
                     </Typography>
                   ))
                 ) : (
@@ -175,7 +189,12 @@ const NextMeetingAlert = ({ userId }: { userId: string }): JSX.Element | null =>
               </>
             ) : (
               <>
-                <Typography variant="h6" sx={{ color: "#4338CA", fontWeight: "bold", mb: 2 }}>
+                <Typography
+                  variant="h6"
+                  sx={{ color: "#4338CA", fontWeight: "bold", mb: 2 }}
+                  //eslint-disable-next-line max-len
+                  aria-label={`Sıradaki toplantıya kalan süre: ${timeLeft.days} gün, ${timeLeft.hours} saat, ${timeLeft.minutes} dakika, ${timeLeft.seconds} saniye`}
+                >
                   {timeLeft.days} Gün {timeLeft.hours} Saat {timeLeft.minutes} Dakika {timeLeft.seconds} Saniye
                 </Typography>
                 <Typography variant="h6" color="text.secondary" gutterBottom>
@@ -190,17 +209,26 @@ const NextMeetingAlert = ({ userId }: { userId: string }): JSX.Element | null =>
                 <Typography variant="h5" fontWeight="bold" color="text.primary" sx={{ mb: 2 }}>
                   {nextMeeting?.room?.name || "Bilinmiyor"}
                 </Typography>
-                <Typography variant="h6" color="text.secondary" gutterBottom>
+                <Typography variant="h6" color="text.secondary" gutterBottom sx={{ textAlign: "center" }}>
                   Katılımcılar
                 </Typography>
                 {(nextMeeting?.participants?.length ?? 0) > 0 ? (
-                  nextMeeting?.participants?.map(participant => (
-                    <Typography key={participant.id} variant="body1" color="text.primary">
-                      {participant.name}
-                    </Typography>
-                  ))
+                  <ul style={{ listStyleType: "none", padding: 0, margin: 0, textAlign: "center" }}>
+                    {nextMeeting?.participants?.map(participant => (
+                      <li key={participant.id}>
+                        <Typography
+                          variant="body1"
+                          color="text.primary"
+                          aria-label={`Katılımcı adı: ${participant.first_name}`}
+                          sx={{ fontWeight: "medium", mb: 0.5 }}
+                        >
+                          {participant.first_name}
+                        </Typography>
+                      </li>
+                    ))}
+                  </ul>
                 ) : (
-                  <Typography variant="body1" color="text.secondary">
+                  <Typography variant="body1" color="text.secondary" textAlign="center">
                     Katılımcı yok
                   </Typography>
                 )}

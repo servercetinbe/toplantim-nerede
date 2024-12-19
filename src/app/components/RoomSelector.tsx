@@ -1,5 +1,9 @@
 import React from "react";
-import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, Typography } from "@mui/material";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import Select, { SelectChangeEvent } from "@mui/material/Select";
+import Typography from "@mui/material/Typography";
 
 import { RoomSelectorProps } from "../types/RoomSelectorProps";
 
@@ -16,6 +20,7 @@ const RoomSelector: React.FC<RoomSelectorProps> = ({ meetingRooms, selectedRoom,
         value={selectedRoom}
         onChange={handleChange}
         label="Toplantı Odası Seç"
+        aria-label="Toplantı Odası Seç"
         sx={{
           borderRadius: "12px",
           "& .MuiOutlinedInput-notchedOutline": {
@@ -30,10 +35,10 @@ const RoomSelector: React.FC<RoomSelectorProps> = ({ meetingRooms, selectedRoom,
         }}
       >
         <MenuItem value="" disabled>
-          <Typography>Toplantı Odası Seç</Typography>
+          <Typography component="h3">Toplantı Odası Seç</Typography>
         </MenuItem>
         {meetingRooms.map(room => (
-          <MenuItem key={room.id} value={room.id}>
+          <MenuItem key={room.id} value={room.id} aria-label={`Oda: ${room.name}, Kapasite: ${room.capacity}`}>
             {room.name} - Kapasite: {room.capacity}
           </MenuItem>
         ))}

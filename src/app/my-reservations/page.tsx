@@ -1,19 +1,17 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { getReservationsFromStorage } from "@/utils/reservationStorage";
 import { useUser } from "@clerk/nextjs";
-import {
-  Box,
-  Button,
-  Checkbox,
-  Container,
-  Divider,
-  FormControlLabel,
-  FormGroup,
-  Paper,
-  Typography,
-} from "@mui/material";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Checkbox from "@mui/material/Checkbox";
+import Container from "@mui/material/Container";
+import Divider from "@mui/material/Divider";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import FormGroup from "@mui/material/FormGroup";
+import Paper from "@mui/material/Paper";
+import Typography from "@mui/material/Typography";
 
 import NextMeetingAlert from "../components/NextMeetingAlert";
 import ReservationList from "../components/ReservationList";
@@ -23,13 +21,10 @@ const MyReservationsPage: React.FC = () => {
   const { user, isSignedIn } = useUser();
   const [myReservations, setMyReservations] = useState<Reservation[]>([]);
   const [selectedRooms, setSelectedRooms] = useState<string[]>([]);
-  const [allRooms, setAllRooms] = useState<string[]>([]);
 
   useEffect(() => {
     if (user) {
       const allReservations = getReservationsFromStorage();
-      allReservations.sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
-
       const currentTime = new Date().getTime();
 
       const userReservations = allReservations.filter(
@@ -39,12 +34,23 @@ const MyReservationsPage: React.FC = () => {
       );
 
       setMyReservations(userReservations);
-
-      const rooms = Array.from(new Set(userReservations.map(reservation => reservation.room?.name || "")));
-      rooms.sort();
-      setAllRooms(rooms);
     }
   }, [user]);
+
+  const allRooms = useMemo(() => {
+    const rooms = Array.from(new Set(myReservations.map(reservation => reservation.room?.name || "")));
+    return rooms.sort();
+  }, [myReservations]);
+
+  const filteredReservations = useMemo(
+    () =>
+      myReservations.filter(reservation => {
+        const isSelectedRoom = selectedRooms.length === 0 || selectedRooms.includes(reservation.room?.name || "");
+        const isActive = new Date(reservation.endTime).getTime() > Date.now();
+        return isSelectedRoom && isActive;
+      }),
+    [myReservations, selectedRooms]
+  );
 
   const handleRoomSelection = (room: string) => {
     setSelectedRooms(prevSelectedRooms =>
@@ -55,14 +61,6 @@ const MyReservationsPage: React.FC = () => {
   const handleClearFilters = () => {
     setSelectedRooms([]);
   };
-
-  const myBookedReservations = myReservations.filter(
-    reservation =>
-      selectedRooms.includes(reservation.room?.name || "") && new Date(reservation.endTime).getTime() > Date.now()
-  );
-  const allReservations = myReservations.filter(reservation => new Date(reservation.endTime).getTime() > Date.now());
-
-  const filteredReservations = selectedRooms.length > 0 ? myBookedReservations : allReservations;
 
   return (
     <>
@@ -75,6 +73,7 @@ const MyReservationsPage: React.FC = () => {
             <Typography
               variant="h4"
               component="h1"
+              aria-label="Toplantılarım"
               gutterBottom
               sx={{
                 fontWeight: "bold",
@@ -100,7 +99,13 @@ const MyReservationsPage: React.FC = () => {
               boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.08)",
             }}
           >
-            <Typography variant="h6" gutterBottom sx={{ fontWeight: "600", color: "#3f51b5", textAlign: "center" }}>
+            <Typography
+              variant="h5"
+              component="h2"
+              gutterBottom
+              aria-label="Odaya Göre Filtreleme"
+              sx={{ fontWeight: "600", color: "#3f51b5", textAlign: "center" }}
+            >
               Odaya Göre Filtreleme
             </Typography>
             <Divider sx={{ mb: 2 }} />
@@ -113,6 +118,7 @@ const MyReservationsPage: React.FC = () => {
                       checked={selectedRooms.includes(room)}
                       onChange={() => handleRoomSelection(room)}
                       name={room}
+                      aria-label={`${room} odasını seç veya çıkar`}
                       sx={{ color: "#3f51b5" }}
                     />
                   }
@@ -134,7 +140,12 @@ const MyReservationsPage: React.FC = () => {
             </FormGroup>
             {selectedRooms.length > 0 && (
               <Box textAlign="center" mt={2}>
-                <Button variant="outlined" color="primary" onClick={handleClearFilters}>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  aria-label="Seçili filtreleri temizle"
+                  onClick={handleClearFilters}
+                >
                   Filtreleri Temizle
                 </Button>
               </Box>
@@ -144,8 +155,8 @@ const MyReservationsPage: React.FC = () => {
           {filteredReservations.length > 0 ? (
             <ReservationList reservations={filteredReservations} currentUser={user?.id} />
           ) : (
-            <Box textAlign="center" sx={{ mt: 4, p: 2 }}>
-              <Typography variant="h6" color="textSecondary">
+            <Box textAlign="center" sx={{ mt: 4, p: 2, backgroundColor: "#fff3cd", borderRadius: "8px" }}>
+              <Typography variant="h6" aria-label="Henüz Toplantınız Bulunmamaktadır" color="#856404">
                 Henüz herhangi bir toplantınız bulunmamaktadır.
               </Typography>
             </Box>

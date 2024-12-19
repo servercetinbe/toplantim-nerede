@@ -27,6 +27,7 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({ label, value, onChange,
         <TextField
           {...params}
           fullWidth
+          aria-label={label}
           sx={{
             "& .MuiOutlinedInput-root": {
               borderRadius: "12px",

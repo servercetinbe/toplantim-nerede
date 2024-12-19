@@ -7,7 +7,14 @@ import PeopleIcon from "@mui/icons-material/People";
 import PersonIcon from "@mui/icons-material/Person";
 import TodayIcon from "@mui/icons-material/Today";
 import WarningIcon from "@mui/icons-material/Warning";
-import { Alert, Box, Chip, List, ListItem, ListItemText, Paper, Stack, Typography } from "@mui/material";
+import Alert from "@mui/material/Alert";
+import Box from "@mui/material/Box";
+import Chip from "@mui/material/Chip";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemText from "@mui/material/ListItemText";
+import Paper from "@mui/material/Paper";
+import Typography from "@mui/material/Typography";
 
 import { ReservationListProps } from "../types/ReservationListProps";
 
@@ -69,7 +76,7 @@ const ReservationList: React.FC<ReservationListProps> = ({ reservations, current
               <ListItemText
                 primary={
                   <Box display="flex" alignItems="center" flexWrap="wrap" gap={2}>
-                    <Typography variant="h6" color="primary" sx={{ fontWeight: "bold", flexGrow: 1 }}>
+                    <Typography variant="h6" color="primary" component="h3" sx={{ fontWeight: "bold", flexGrow: 1 }}>
                       {reservation.room?.name || "Unknown Room"}
                     </Typography>
                     {isUsersOngoingMeeting && (
@@ -78,6 +85,7 @@ const ReservationList: React.FC<ReservationListProps> = ({ reservations, current
                         label="Toplantınız Başladı!"
                         color="error"
                         variant="filled"
+                        aria-label="Toplantınız başladı: Lütfen toplantı odasına gidiniz"
                         size="small"
                         sx={{
                           fontWeight: "bold",
@@ -94,6 +102,7 @@ const ReservationList: React.FC<ReservationListProps> = ({ reservations, current
                       <Chip
                         icon={<WarningIcon />}
                         label="Toplantı Devam Ediyor"
+                        aria-label="Toplantı şu anda devam ediyor"
                         color="error"
                         size="small"
                         sx={{ fontWeight: "bold" }}
@@ -105,6 +114,7 @@ const ReservationList: React.FC<ReservationListProps> = ({ reservations, current
                         label="Bugün"
                         color="primary"
                         size="small"
+                        aria-label="Bugün toplantınız var"
                         sx={{ fontWeight: "bold" }}
                       />
                     )}
@@ -115,6 +125,7 @@ const ReservationList: React.FC<ReservationListProps> = ({ reservations, current
                     {isUsersOngoingMeeting && (
                       <Alert
                         severity="error"
+                        aria-label={`Toplantınız Aktif: ${reservation.room?.name || "Bilinmiyor"} odasına gidin.`}
                         sx={{
                           mt: 1,
                           mb: 2,
@@ -131,23 +142,33 @@ const ReservationList: React.FC<ReservationListProps> = ({ reservations, current
                     <Box sx={{ marginTop: "8px" }}>
                       <Box display="flex" alignItems="center" marginBottom="4px">
                         <AccessTimeIcon sx={{ marginRight: "8px", fontSize: "20px", color: "grey.600" }} />
-                        <Typography variant="body1" color="text.secondary">
+                        <Typography
+                          variant="body1"
+                          color="text.secondary"
+                          //eslint-disable-next-line max-len
+                          aria-label={`Toplantı Zamanı: ${formatReservationTime(reservation)}, Oda: ${reservation.room?.name || "Bilinmiyor"}`}
+                        >
                           {formatReservationTime(reservation)}
                         </Typography>
                       </Box>
                       <Box display="flex" alignItems="center" marginBottom="4px">
                         <PersonIcon sx={{ marginRight: "8px", fontSize: "20px", color: "grey.600" }} />
-                        <Typography variant="body2" color="text.secondary">
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          aria-label={`Toplantı Sahibi: ${reservation.user?.name || "Guest"}`}
+                        >
                           Toplantı Sahibi: {reservation.user?.name || "Guest"}
                           {isUsersMeeting && (
                             <Chip
+                              aria-label="Sizin Toplantınız"
                               label="Sizin Toplantınız"
                               size="small"
                               sx={{
                                 ml: 1,
                                 height: "20px",
-                                backgroundColor: "#e3f2fd",
-                                color: "#1976d2",
+                                backgroundColor: "#bbdefb",
+                                color: "#0d47a1",
                                 fontWeight: "bold",
                               }}
                             />
@@ -156,7 +177,11 @@ const ReservationList: React.FC<ReservationListProps> = ({ reservations, current
                       </Box>
                       <Box display="flex" alignItems="center" marginBottom="4px">
                         <PeopleIcon sx={{ marginRight: "8px", fontSize: "20px", color: "grey.600" }} />
-                        <Typography variant="body2" color="text.secondary">
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          aria-label={`Toplantı Kapasitesi: ${reservation.room?.capacity || "N/A"}`}
+                        >
                           Kapasite: {reservation.room?.capacity || "N/A"}
                         </Typography>
                       </Box>
@@ -169,13 +194,18 @@ const ReservationList: React.FC<ReservationListProps> = ({ reservations, current
                             <Typography variant="body2" color="text.secondary" sx={{ marginBottom: "4px" }}>
                               Katılımcılar:
                             </Typography>
-                            <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                            <Box
+                              sx={{
+                                display: "flex",
+                                flexWrap: "wrap",
+                                gap: "8px",
+                              }}
+                            >
                               {reservation.participants.map(participant => {
-                                // Check if first_name and last_name exist, if not use id
                                 const displayName =
                                   participant.first_name && participant.last_name
                                     ? `${participant.first_name} ${participant.last_name}`
-                                    : participant.id;
+                                    : participant.first_name || participant.last_name || participant.id;
 
                                 return (
                                   <Chip
@@ -185,16 +215,16 @@ const ReservationList: React.FC<ReservationListProps> = ({ reservations, current
                                     sx={{
                                       backgroundColor: participant.id === currentUser ? "#e3f2fd" : "#e0ebff",
                                       color: participant.id === currentUser ? "#1976d2" : "#3f51b5",
-                                      fontWeight: participant.id === currentUser ? "bold" : "normal",
-                                      marginBottom: "4px",
-                                      "&:hover": {
-                                        backgroundColor: participant.id === currentUser ? "#bbdefb" : "#d0d9ff",
-                                      },
                                     }}
+                                    aria-label={
+                                      participant.id === currentUser
+                                        ? `${displayName} (Siz)`
+                                        : `Katılımcı: ${displayName}`
+                                    }
                                   />
                                 );
                               })}
-                            </Stack>
+                            </Box>
                           </Box>
                         </Box>
                       )}

@@ -1,36 +1,30 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { checkReservationConflict } from "@/utils/conflictCheck";
-import { getReservationsFromStorage, saveReservationToStorage } from "@/utils/reservationStorage";
+import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
-import { Alert, alpha, Box, Button, Container, Grid, Paper, Snackbar, TextField, Typography } from "@mui/material";
+import { Alert, alpha, Box, Button, Container, Grid, Paper, Snackbar, Typography } from "@mui/material";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DesktopDateTimePicker } from "@mui/x-date-pickers/DesktopDateTimePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import dayjs, { Dayjs } from "dayjs";
+import { Building2, CalendarClock, Users } from "lucide-react";
 
 import "dayjs/locale/tr";
 
-import { useRouter } from "next/navigation";
-import Autocomplete from "@mui/material/Autocomplete";
-import Popper from "@mui/material/Popper";
+import { checkReservationConflict } from "@/utils/conflictCheck";
+import { getReservationsFromStorage, saveReservationToStorage } from "@/utils/reservationStorage";
 import updateLocale from "dayjs/plugin/updateLocale";
-import { Building2, CalendarClock, Users } from "lucide-react";
 
+import AsyncUserSelectbox from "../components/AsyncUserSelectbox ";
 import CompanySelector from "../components/CompanySelector";
+import DateTimePicker from "../components/DateTimePicker";
 import NextMeetingAlert from "../components/NextMeetingAlert";
 import RecurrenceSettings from "../components/RecurrenceSettings";
 import RoomSelector from "../components/RoomSelector";
 import { companies } from "../constants/companies";
 import { officialHolidays } from "../constants/dates";
 import useFetchUsers from "../hooks/useFetchUsers";
-import { Reservation } from "../types/Reservation";
-import { Room } from "../types/Room";
-
-const CustomPopper = (props: React.ComponentProps<typeof Popper>) => (
-  <Popper {...props} placement="bottom-start" modifiers={[{ name: "flip", enabled: false }]} />
-);
+import { Reservation, Room } from "../types/Reservation";
 
 dayjs.extend(updateLocale);
 dayjs.updateLocale("tr", {
@@ -39,7 +33,7 @@ dayjs.updateLocale("tr", {
 
 const HomePage = (): React.ReactElement => {
   const { user, isSignedIn } = useUser();
-  const { users, loading, error } = useFetchUsers();
+  const { users } = useFetchUsers();
   const [meetingRooms, setMeetingRooms] = useState<Room[]>([]);
   const [selectedRoom, setSelectedRoom] = useState<string>("");
   const [startTime, setStartTime] = useState<Dayjs | null>(null);
@@ -303,45 +297,22 @@ const HomePage = (): React.ReactElement => {
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6}>
                   <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="tr">
-                    <DesktopDateTimePicker
+                    <DateTimePicker
                       label="Başlangıç Zamanı"
                       value={startTime}
                       onChange={(value: Dayjs | null) => handleStartTimeChange(value)}
                       shouldDisableDate={shouldDisableDate}
-                      renderInput={(params: React.ComponentProps<typeof TextField>) => (
-                        <TextField
-                          {...params}
-                          sx={{
-                            width: "100%",
-                            "& .MuiOutlinedInput-root": {
-                              borderRadius: "12px",
-                            },
-                          }}
-                        />
-                      )}
                     />
                   </LocalizationProvider>
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="tr">
-                    <DesktopDateTimePicker
-                      label="Bitiş Zamanı"
-                      value={endTime}
-                      onChange={(newValue: Dayjs | null) => setEndTime(newValue)}
-                      shouldDisableDate={shouldDisableDate}
-                      renderInput={(params: React.ComponentProps<typeof TextField>) => (
-                        <TextField
-                          {...params}
-                          sx={{
-                            width: "100%",
-                            "& .MuiOutlinedInput-root": {
-                              borderRadius: "12px",
-                            },
-                          }}
-                        />
-                      )}
-                    />
-                  </LocalizationProvider>
+                  <DateTimePicker
+                    label="Bitiş Zamanı"
+                    value={endTime}
+                    onChange={(newValue: Dayjs | null) => setEndTime(newValue)}
+                    shouldDisableDate={shouldDisableDate}
+                    minDateTime={startTime || undefined}
+                  />
                 </Grid>
               </Grid>
             </Grid>
@@ -365,56 +336,7 @@ const HomePage = (): React.ReactElement => {
                   Katılımcılar
                 </Typography>
               </Box>
-              {loading && <Typography>Loading users...</Typography>}
-
-              {error && <Typography>Error: {error}</Typography>}
-
-              {!loading && !error && (
-                <Autocomplete
-                  multiple
-                  options={users}
-                  getOptionLabel={option => `${option.first_name} ${option.last_name}`}
-                  value={users.filter(user => participants.includes(user.id))}
-                  onChange={(_, newValue) => setParticipants(newValue.map(user => user.id))}
-                  renderInput={params => (
-                    <TextField
-                      {...params}
-                      label="Katılımcıları Seç"
-                      variant="outlined"
-                      placeholder={participants.length === 0 ? "Katılımcı ekle..." : ""}
-                      sx={{
-                        "& .MuiOutlinedInput-root": {
-                          borderRadius: "12px",
-                          backgroundColor: "white",
-                          transition: "all 0.2s ease-in-out",
-                          "&:hover": {
-                            backgroundColor: "rgba(67, 56, 202, 0.04)",
-                          },
-                          "&.Mui-focused": {
-                            backgroundColor: "white",
-                            boxShadow: "0 0 0 2px rgba(67, 56, 202, 0.2)",
-                          },
-                        },
-                      }}
-                    />
-                  )}
-                  PopperComponent={CustomPopper}
-                  sx={{
-                    "& .MuiChip-root": {
-                      borderRadius: "8px",
-                      backgroundColor: alpha("#4338CA", 0.1),
-                      color: "#4338CA",
-                      margin: "2px",
-                      "& .MuiChip-deleteIcon": {
-                        color: "#4338CA",
-                        "&:hover": {
-                          color: "#3730A3",
-                        },
-                      },
-                    },
-                  }}
-                />
-              )}
+              <AsyncUserSelectbox value={participants} onChange={setParticipants} />
             </Grid>
 
             {/* Submit Button */}

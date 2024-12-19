@@ -1,48 +1,81 @@
 import React from "react";
-import type { Metadata } from "next";
-import { ClerkProvider, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+import { Metadata } from "next";
+import Head from "next/head";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 
-import "./globals.css";
+import { ClientWrapper } from "../components/ClientWrapper";
+import Footer from "./components/layout/Footer";
+import Navbar from "./components/layout/Navbar";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://toplantim-nerede.vercel.app"),
   title: {
-    default: "Toplantım Nerede - Global SEO",
-    template: "%s | toplanti-nerede",
+    default: "Toplantı Odası Rezervasyonu",
+    template: "%s | Toplantı Odası Rezervasyonu",
   },
-  description: "Toplantı odalarınızı yönetin ve toplantı zamanlarını kolayca planlayın.",
-  keywords: ["toplantı yönetimi", "toplantı odası", "takvim", "planlama", "buluşma", "konuşma"],
+  description: "Verimli toplantılar için online rezervasyon sistemi",
+  keywords: ["rezervasyon", "toplantı odası", "şirket", "etkinlik planlama"],
+  authors: [{ name: "Bookease" }],
+  creator: "Bookease",
   openGraph: {
-    title: "Toplantım Nerede",
-    description: "Toplantı odalarını ve zamanlarını kolayca yönetin.",
-    locale: "tr_TR",
     type: "website",
-    siteName: "toplantim-nerede",
+    locale: "tr_TR",
+    siteName: "Toplantı Odası Rezervasyonu",
+    title: "Toplantı Odası Rezervasyonu",
+    description: "Verimli toplantılar için online rezervasyon sistemi",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Toplantı Odası Rezervasyonu",
+      },
+    ],
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "Toplantı Odası Rezervasyonu",
+    description: "Verimli toplantılar için online rezervasyon sistemi",
+    images: ["/og-image.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  viewport: "width=device-width, initial-scale=1",
+  themeColor: "#ffffff",
 };
 
-export default async function RootLayout({ children }: { children: React.ReactNode }): Promise<React.ReactElement> {
+export default async function RootLayout({ children }: { children: React.ReactNode }): Promise<JSX.Element> {
   const locale = await getLocale();
   const messages = await getMessages();
 
   return (
-    <ClerkProvider>
-      <html lang={locale}>
-        <body>
-          <NextIntlClientProvider locale={locale} messages={messages}>
-            <header style={{ display: "flex", justifyContent: "space-between", padding: "10px 20px" }}>
-              <div>
-                <SignedOut />
-                <SignedIn>
-                  <UserButton afterSignOutUrl="/" />
-                </SignedIn>
-              </div>
-            </header>
+    <html lang={locale}>
+      <Head>
+        <title>Toplantı Odası Rezervasyonu</title>
+        <meta name="description" content="Verimli toplantılar için online rezervasyon sistemi." />
+        <meta name="keywords" content="rezervasyon, toplantı odası, şirket, etkinlik planlama" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </Head>
+      <head />
+      <body>
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <ClientWrapper>
+            <Navbar />
             {children}
-          </NextIntlClientProvider>
-        </body>
-      </html>
-    </ClerkProvider>
+            <Footer />
+          </ClientWrapper>
+        </NextIntlClientProvider>
+      </body>
+    </html>
   );
 }

@@ -1,29 +1,34 @@
+import fs from "fs";
+import path from "path";
+
 import { NextRequest, NextResponse } from "next/server";
-import { getAuth } from "@clerk/nextjs/server";
+import { Reservation } from "@/app/types/Reservation";
 
-import { saveReservationToDB } from "../../../lib/mongo";
+const dataPath = path.join(process.cwd(), "data", "reservations.json");
 
-export const POST = async (request: NextRequest): Promise<Response> => {
+const saveReservationToFile = (reservation: Reservation) => {
+  const data = fs.readFileSync(dataPath, "utf-8");
+  const reservations = JSON.parse(data);
+  reservations.push(reservation);
+  fs.writeFileSync(dataPath, JSON.stringify(reservations, null, 2));
+};
+
+export const POST = async (request: NextRequest): Promise<NextResponse> => {
   try {
-    const { userId } = getAuth(request);
-    if (!userId) {
-      return NextResponse.json({ error: "User ID is required" }, { status: 401 });
-    }
-
     const reservationData = await request.json();
-
     const reservation = {
-      userId,
-      date: new Date(reservationData.startTime),
-      time: `${reservationData.startTime.split("T")[1]}-${reservationData.endTime.split("T")[1]}`,
+      id: String(new Date().getTime()),
+      userId: reservationData.userId || "guest",
+      startTime: reservationData.startTime,
+      endTime: reservationData.endTime,
       roomId: reservationData.roomId,
     };
 
-    await saveReservationToDB(reservation);
+    saveReservationToFile(reservation);
 
     return NextResponse.json({ message: "Reservation successful" });
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: "Failed to make reservation" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to save reservation" }, { status: 500 });
   }
 };

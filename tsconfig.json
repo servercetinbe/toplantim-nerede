@@ -40,7 +40,8 @@
     "next.config.mjs",
     "__tests__/**/*",
     "babel.config.js",
-    "mongo.js"
+    "mongo.js",
+    "/app/api/sitemap.xml.js"
   ],
   "exclude": [
     "node_modules"

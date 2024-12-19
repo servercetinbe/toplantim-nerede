@@ -50,11 +50,20 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
-  viewport: "width=device-width, initial-scale=1",
-  themeColor: "#ffffff",
 };
 
-export default async function RootLayout({ children }: { children: React.ReactNode }): Promise<JSX.Element> {
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
+
+export const themeColor = "#ffffff";
+
+export default async function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}): Promise<JSX.Element> {
   const locale = await getLocale();
   const messages = await getMessages();
 
@@ -62,11 +71,15 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang={locale}>
       <Head>
         <title>Toplantı Odası Rezervasyonu</title>
-        <meta name="description" content="Verimli toplantılar için online rezervasyon sistemi." />
-        <meta name="keywords" content="rezervasyon, toplantı odası, şirket, etkinlik planlama" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta
+          name="description"
+          content="Verimli toplantılar için online rezervasyon sistemi."
+        />
+        <meta
+          name="keywords"
+          content="rezervasyon, toplantı odası, şirket, etkinlik planlama"
+        />
       </Head>
-      <head />
       <body>
         <NextIntlClientProvider locale={locale} messages={messages}>
           <ClientWrapper>

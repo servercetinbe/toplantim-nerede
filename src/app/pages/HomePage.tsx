@@ -23,16 +23,15 @@ import { checkReservationConflict } from "@/utils/conflictCheck";
 import { getReservationsFromStorage, saveReservationToStorage } from "@/utils/reservationStorage";
 import updateLocale from "dayjs/plugin/updateLocale";
 
-import AsyncUserSelectbox from "../components/AsyncUserSelectbox ";
 import CompanySelector from "../components/CompanySelector";
 import DateTimePicker from "../components/DateTimePicker";
 import NextMeetingAlert from "../components/NextMeetingAlert";
-import RecurrenceSettings from "../components/RecurrenceSettings";
 import RoomSelector from "../components/RoomSelector";
 import { companies } from "../constants/companies";
 import { officialHolidays } from "../constants/dates";
 import useFetchUsers from "../hooks/useFetchUsers";
 import { Reservation, Room } from "../types/Reservation";
+import dynamic from "next/dynamic";
 
 dayjs.extend(updateLocale);
 dayjs.updateLocale("tr", {
@@ -197,6 +196,15 @@ const HomePage = (): React.ReactElement => {
 
   const handleCloseSnackbar = () => setOpenSnackbar(false);
 
+  const AsyncUserSelectbox = dynamic(() => import('../components/AsyncUserSelectbox '), {
+    loading: () => <div className="w-full h-12 animate-pulse bg-gray-200 rounded-md" />,
+    ssr: false
+  });
+
+  const RecurrenceSettings = dynamic(() => import('../components/RecurrenceSettings'), {
+    loading: () => <div className="w-full h-32 animate-pulse bg-gray-200 rounded-md" />
+  });
+
   return (
     <Box
       sx={{
@@ -351,7 +359,7 @@ const HomePage = (): React.ReactElement => {
                   Katılımcılar
                 </Typography>
               </Box>
-              <AsyncUserSelectbox value={participants} onChange={setParticipants} aria-label="Katılımcı Seçici" />
+              <AsyncUserSelectbox value={participants} onChange={setParticipants} />
             </Grid>
 
             {/* Submit Button */}

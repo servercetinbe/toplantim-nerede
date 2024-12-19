@@ -14,6 +14,14 @@ const nextConfig = {
   compiler: {
     emotion: true,
   },
+  async rewrites() {
+    return [
+      {
+        source: "/sitemap.xml",
+        destination: "/api/sitemap",
+      },
+    ];
+  },
 };
 
 export default withNextIntl(nextConfig);

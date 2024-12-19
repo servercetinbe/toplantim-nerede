@@ -2,16 +2,9 @@ import fs from "fs";
 import path from "path";
 
 import { NextRequest, NextResponse } from "next/server";
+import { Reservation } from "@/app/types/Reservation";
 
 const dataPath = path.join(process.cwd(), "data", "reservations.json");
-
-interface Reservation {
-  id: string;
-  userId: string;
-  startTime: string;
-  endTime: string;
-  roomId: string;
-}
 
 const saveReservationToFile = (reservation: Reservation) => {
   const data = fs.readFileSync(dataPath, "utf-8");

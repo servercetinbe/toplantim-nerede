@@ -1,10 +1,6 @@
-export interface User {
+export interface ParticipantUser {
   id: string;
   first_name: string;
   last_name: string;
   email: string;
-}
-
-export interface ApiResponse {
-  data: User[];
 }

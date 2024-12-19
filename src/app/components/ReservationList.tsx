@@ -170,22 +170,30 @@ const ReservationList: React.FC<ReservationListProps> = ({ reservations, current
                               Katılımcılar:
                             </Typography>
                             <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-                              {reservation.participants.map(participant => (
-                                <Chip
-                                  key={participant.id}
-                                  label={participant.name}
-                                  size="small"
-                                  sx={{
-                                    backgroundColor: participant.id === currentUser ? "#e3f2fd" : "#e0ebff",
-                                    color: participant.id === currentUser ? "#1976d2" : "#3f51b5",
-                                    fontWeight: participant.id === currentUser ? "bold" : "normal",
-                                    marginBottom: "4px",
-                                    "&:hover": {
-                                      backgroundColor: participant.id === currentUser ? "#bbdefb" : "#d0d9ff",
-                                    },
-                                  }}
-                                />
-                              ))}
+                              {reservation.participants.map(participant => {
+                                // Check if first_name and last_name exist, if not use id
+                                const displayName =
+                                  participant.first_name && participant.last_name
+                                    ? `${participant.first_name} ${participant.last_name}`
+                                    : participant.id;
+
+                                return (
+                                  <Chip
+                                    key={participant.id}
+                                    label={displayName}
+                                    size="small"
+                                    sx={{
+                                      backgroundColor: participant.id === currentUser ? "#e3f2fd" : "#e0ebff",
+                                      color: participant.id === currentUser ? "#1976d2" : "#3f51b5",
+                                      fontWeight: participant.id === currentUser ? "bold" : "normal",
+                                      marginBottom: "4px",
+                                      "&:hover": {
+                                        backgroundColor: participant.id === currentUser ? "#bbdefb" : "#d0d9ff",
+                                      },
+                                    }}
+                                  />
+                                );
+                              })}
                             </Stack>
                           </Box>
                         </Box>

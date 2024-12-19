@@ -105,7 +105,13 @@ const HomePage = (): React.ReactElement => {
     const room = meetingRooms.find(r => r.id === selectedRoom);
     const selectedParticipants = users
       .filter(usr => participants.includes(usr.id))
-      .map(usr => ({ id: usr.id, name: usr.name }));
+      .map(usr => ({
+        id: usr.id,
+        name: `${usr.first_name} ${usr.last_name}`,
+        first_name: usr.first_name,
+        last_name: usr.last_name,
+        email: usr.email,
+      }));
 
     const newReservations: Reservation[] = [];
     const interval = calculateRecurrenceInterval();
@@ -367,7 +373,7 @@ const HomePage = (): React.ReactElement => {
                 <Autocomplete
                   multiple
                   options={users}
-                  getOptionLabel={option => option.name}
+                  getOptionLabel={option => `${option.first_name} ${option.last_name}`}
                   value={users.filter(user => participants.includes(user.id))}
                   onChange={(_, newValue) => setParticipants(newValue.map(user => user.id))}
                   renderInput={params => (

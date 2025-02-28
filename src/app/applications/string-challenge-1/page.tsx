@@ -11,7 +11,7 @@ export const metadata = {
   openGraph: {
     title: "String Challenge - Convert to Camel Case",
     description: "An application that converts strings to camel case format.",
-    locale: "tr_TR",
+    locale: "en_US",
     type: "website",
     siteName: "toplantim-nerede",
   },

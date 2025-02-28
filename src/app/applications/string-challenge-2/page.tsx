@@ -9,7 +9,7 @@ export const metadata = {
   openGraph: {
     title: "String Challenge - HTML Tag Validator",
     description: "An application that validates nested HTML tags and identifies mismatches.",
-    locale: "tr_TR",
+    locale: "en_US",
     type: "website",
     siteName: "String Challenge",
   },
